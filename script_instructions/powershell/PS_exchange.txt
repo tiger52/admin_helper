@@ -1,0 +1,24 @@
+# просмотр размера почтвого ящика 
+[PS] C:\Windows\system32>Get-MailboxFolderStatistics HK-KotliarovVV | select Name, FolderPath, foldersize, FolderAndSubfolderSize | ft -Wrap
+
+# так можна удалять емейлы тех кого закинули в блокированые и прощелкали удалить мыло
+Get-User -OrganizationalUnit "OU=BLOCKED,DC=nadrabank,DC=jsc,DC=local" -RecipientTypeDetails UserMailbox | Disable-Mailbox -Confirm:$false
+
+# кому делегирован ящик
+Get-Mailbox  <name of login or e-mail adress> | Get-MailboxPermission | where {$_.user.tostring() -ne "NT AUTHORITY\SELF" -and $_.IsInherited -eq $false} | Select User,@{Name='Access Rights';Expression={[string]::join(', ', $_.AccessRights)}}
+
+# посмотреть посилку и тд писем
+Get-TransportService | Get-MessageTrackingLog -Sender Dmitro.Shaptala@nadrabank.ua -Recipients Svyatoslav.Babik@nadrabank.ua |select *|Out-GridView
+
+# восстановление почтовового ящика блокированому пользователя (переприбивка ящика)
+Get-MailboxDatabase | Get-MailboxStatistics | where {$_.DisconnectReason -ne $null} | ft displayname,database,disconnectreason -auto
+ИЛИ
+Get-ExchangeServer | Where-Object {$_.IsMailboxServer –eq $true} | ForEach-Object { Get-MailboxStatistics -Server $_.Name | Where-Object {$_.DisconnectDate –notlike ‘’}} | select displayname, database
+
+Get-MailboxDatabase | Get-MailboxStatistics | Where { $_.DisconnectReason -eq "Disabled" } | ft DisplayName,Database,DisconnectDate
+
+Connect-Mailbox -Identity "Admin" -Database MB-HO-01 -User Admin
+
+
+Get-MailboxDatabase | Get-MailboxStatistics | Where {$_.Displayname -eq "Самохвалов Андрій Вікторович"} | fl
+Connect-Mailbox -Identity 975dabf4-114b-4fb6-94bd-d0a505ebd8af -Database DB03 -User CO-SamokhvalovAV

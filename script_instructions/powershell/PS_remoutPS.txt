@@ -1,0 +1,2 @@
+$a=New-PSSession -ComputerName srv-co-fss02
+Invoke-Command -Session $a -ScriptBlock{Get-SmbOpenFile | where Path -match E:\\* | select ClientComputerName,ClientUserName -Unique}

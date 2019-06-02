@@ -1,0 +1,40 @@
+zonning
+
+	1 присвоить девайсу алиас
+		подписать девайс
+		сделать алиас на всан
+	2 создать зону
+		добавтиь одну железку (хранилку)
+		добавить вторую железку (сервак)
+	3 создать зонсет
+	4 реактивировать зонсет
+	5 скопировать в старт ап !!!
+	
+порядок действий
+	
+	# sh flogi database
+	# conf terminal
+	1
+	(config)# device-alias database
+	(config-device-alias-db)#device-alias name [server's_name] pwwn [server's_pwwn_number]
+	(config-device-alias-db)# device-alias commit
+	(config)# fcalias name [server's_name] vsan [number_of_vsan]
+	(config-fcalias)# member pwwn [pwwn_девайса]
+	(config-fcalias)# sh fcalias
+	2
+	(config)# sh zone
+	(config)# zone name [zone's_name] vsan 250
+	(config-fcalias)# member pwwn [pwwn_девайса]
+	(config-zone)# member fcalias HUS-130
+	(config-zone)# member fcalias SRV-CO
+	3
+	(config)# sh zoneset
+	(config)# zoneset name FABRIC_BIM_A vsan 250
+	(config-zoneset)# member [поное_название_зонсета]
+	4
+	(config)# zoneset activate name FABRIC_BIM_A vsan 250
+	5
+	(config)# sh zoneset active
+	(config)# copy running-config startup-config
+
+далее заходим на хранилку и добавляем диск нашему девайсу

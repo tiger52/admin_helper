@@ -1,0 +1,2 @@
+# delete mail-box forever
+Get-Mailbox admin_gaa| %{Search-Mailbox -Identity $_.distinguishedname -SearchDumpsterOnly -DeleteContent -Force}

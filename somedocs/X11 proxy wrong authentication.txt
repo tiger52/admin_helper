@@ -1,0 +1,39 @@
+Getting “Xlib: PuTTY X11 proxy: wrong authentication protocol attempted”? I have the answer :)
+112 Replies
+Here’s the scenario:
+
+You ssh to a remote server with your login and either sudo or su to another user to run some application that uses a X Windows front end.  There is a firewall between your desktop and the remote server that allows only ssh connections (port 22).  When you run into the error “Xlib: PuTTY X11 proxy: wrong authentication protocol attempted”.  What to do?
+
+	ssh jason@remote-server -X
+	jason $ echo $DISPLAY
+	localhost:10.0
+	jason $ su - oracle
+	oracle's Password:
+	oracle $ xterm
+	Xlib: connection to "localhost:10.0" refused by server
+	Xlib: PuTTY X11 proxy: wrong authentication protocol attempted
+	xterm Xt error: Can't open display: localhost:10.0
+
+On recent OpenSSH Server releases, you can simply enable “ForwardX11Trusted yes” in the /etc/ssh/sshd_config file and restart the OpenSSH server.  If you’re not using a recent OpenSSH Server release or if you can’t for security or political reasons, what could you do? Give up? It’s simpler than you think.
+
+You need to temporarily transfer the authorization to the other account. First, get the key from your account:
+
+	jason $ xauth list
+	aspc2o1/unix:10 MIT-MAGIC-COOKIE-1 bc334c66cfec3c5c3d5b0efc4ee9d3ad
+
+Next, sudo/su to the other account and add the authorization key.
+
+	jason $ su - oracle
+	oracle $ xauth add aspc2o1/unix:10 MIT-MAGIC-COOKIE-1 bc334c66cfec3c5c3d5b0efc4ee9d3ad
+
+Now, you should be able to start any X Windows application, assuming that your DISPLAY variable is set to go through the ssh tunnel:
+
+	oracle $ xterm
+
+UPDATE:
+
+Kyle McBride provided an easy way to automate adding the key to xauth. Add the following to your .bashrc or .profile file.
+
+	xauth list | while read x ; do sudo -u oracle xauth add $x ; done
+
+The -u oracle will run the xauth command as the user oracle otherwise the keys will be added to the root user.

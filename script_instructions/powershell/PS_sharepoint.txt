@@ -1,0 +1,3 @@
+New-SPSite -URL http://srv-co-shp02/sites/ArchiveLoansDocUKR -OwnerAlias nadrabank\svc-sp02-admin -ContentDatabase WSS_Nadra_Jur
+
+Move-SPSite http://servername/sites/sitename -DestinationDatabase ContentDb2

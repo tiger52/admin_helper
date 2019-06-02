@@ -1,0 +1,4 @@
+# with login password
+javaws -J-Djnlp.client.username=YOUR_LOGIN -J-Djnlp.client.password=YOUR_PASSWORD JNLPURL
+
+javaws -J-Djnlp.client.username=admin -J-Djnlp.client.password=password https://172.17.99.168/viewer.jnlp

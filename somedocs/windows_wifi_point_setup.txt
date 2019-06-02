@@ -1,0 +1,5 @@
+netsh wlan show drivers
+
+netsh wlan set hostednetwork mode=allow ssid=[CoffSlim] key=[parolparol11]
+
+netsh wlan start hostednetwork

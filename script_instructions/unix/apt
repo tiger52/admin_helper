@@ -1,0 +1,7 @@
+# search package
+apt-cache search keyword
+
+# all installed packages
+dpkg --get-selections
+dpkg -l
+apt --installed list

@@ -1,0 +1,12 @@
+RC_front
+Retail_union
+
+msg * /server:localhost /Time 300 /V Уважаемые колеги! ПО Retail_union будет обновлен в течении 5 минут. Просьба не включать!
+
+cd C:\Install
+.\Upd_RC.bat
+
+msg * /server:localhost /Time 300 /V Уважаемые колеги! Retail_union обновлен.
+
+
+msg * /server:localhost /Time 300 /V Уважаемые колеги! Сервер будет перегружен через 5 минут. Прошу сохранить не завершненную работу, и нажать на кнопку выход

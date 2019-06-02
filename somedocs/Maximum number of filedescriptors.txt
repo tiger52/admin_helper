@@ -1,0 +1,144 @@
+Maximum number of filedescriptors
+
+When I read something like: "the maximum number of y is x" I always wonder, what happens at x+1 ". The code below does the following:
+Query the maximum number of open filedescriptors for a single process (using sysconf)
+Create that amount of files + 1
+Write out any error messages
+
+The code looks like this:
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <fcntl.h>
+#include <string.h>
+#include <errno.h>
+
+#define BUFLEN 80
+int main(int argc, char **argv){
+  int num;
+  int i;
+  char buf[BUFLEN];
+  num = sysconf(_SC_OPEN_MAX);
+  printf("Maximum number of open filedescriptors: %i\n", num);
+  for (i=0;i<=num;i++){
+    sprintf(buf, "FILE%i", i);
+    if(open(buf, O_WRONLY | O_CREAT)<0){
+      printf("Error occured creating file %i\n", i);
+      printf("Error: %s\n", strerror(errno));
+    }
+  }
+  return 0;
+}
+
+
+And the output looks like:
+helios@neurotic:~/vuilbak/unixprog$ ./openfile 
+Maximum number of open filedescriptors: 1024
+Error occured creating file 1021
+Error: Too many open files
+Error occured creating file 1022
+Error: Too many open files
+Error occured creating file 1023
+Error: Too many open files
+
+
+Or a piece of the strace:
+
+open("FILE1020", O_WRONLY|O_CREAT, 01774) = 1023
+open("FILE1021", O_WRONLY|O_CREAT, 01775) = -1 EMFILE (Too many open files)
+write(1, "Error occured creating file 1021"..., 33Error occured creating file 1021
+) = 33
+
+
+
+Hey this is a rip off, they promised me 1024 open filedescriptors and I only got 1021 (start counting at zero). True, but you missed something:
+each process has by default three open filedescriptors: stdin (0), stdout (1) and stderr (2). As a final note I could say that it's in this case not needed to create num file, we could as well open the same file n times.
+
+This limit can be seen by issuing:
+
+	edb@lapedb:~$ ulimit -n
+	1024
+
+
+You can't modify this limit as a user:
+
+	edb@lapedb:~$ ulimit -n 2000
+	bash: ulimit: open files: cannot modify limit: Operation not permitted
+
+
+But if you edit /etc/security/limits.conf as root it is possible to set and change this limit (and others ;-) )
+
+	# /etc/security/limits.conf
+	#
+	#Each line describes a limit for a user in the form:
+	#
+	#<domain>        <type>  <item>  <value>
+	#
+	#Where:
+	#<domain> can be:
+	#        - an user name
+	#        - a group name, with @group syntax
+	#        - the wildcard *, for default entry
+	#        - the wildcard %, can be also used with %group syntax,
+	#                 for maxlogin limit
+	#
+	#<type> can have the two values:
+	#        - "soft" for enforcing the soft limits
+	#        - "hard" for enforcing hard limits
+	#
+	#<item> can be one of the following:
+	#        - core - limits the core file size (KB)
+	#        - data - max data size (KB)
+	#        - fsize - maximum filesize (KB)
+	#        - memlock - max locked-in-memory address space (KB)
+	#        - nofile - max number of open files
+	#        - rss - max resident set size (KB)
+	#        - stack - max stack size (KB)
+	#        - cpu - max CPU time (MIN)
+	#        - nproc - max number of processes
+	#        - as - address space limit
+	#        - maxlogins - max number of logins for this user
+	#        - maxsyslogins - max number of logins on the system
+	#        - priority - the priority to run user process with
+	#        - locks - max number of file locks the user can hold
+	#        - sigpending - max number of pending signals
+	#        - msgqueue - max memory used by POSIX message queues (bytes)
+	#        - nice - max nice priority allowed to raise to
+	#        - rtprio - max realtime priority
+	#
+	#<domain>      <type>  <item>         <value>
+	#
+
+	edb             hard    nofile          20000
+	# End of file
+
+
+The only thing to keep in mind is that there is also a a system wide maximum of open filedescriptors, this value can be found in:
+
+	edb@lapedb:~$ cat /proc/sys/fs/file-max 
+	101595
+
+
+So when changing this value, be sure to leave some filedescriptors for other processes as well (not that you will ever needs this amount of open files ;-), but hey we just want to play).
+
+The easiest way to get a hold of the number of filedescriptors in use by a process would be to examine /proc/<pid>/fd. When I look at the open filedescriptors of a running ssh daemon we get
+
+	edb@lapedb:~$ sudo ls -al /proc/11521/fd/
+	Password:
+	total 0
+	dr-x------ 2 root root  0 2007-05-25 09:20 .
+	dr-xr-xr-x 5 edb  edb   0 2007-05-25 09:10 ..
+	lrwx------ 1 root root 64 2007-05-25 09:20 0 -> /dev/null
+	lrwx------ 1 root root 64 2007-05-25 09:20 1 -> /dev/null
+	lrwx------ 1 root root 64 2007-05-25 09:20 10 -> /dev/ptmx
+	lrwx------ 1 root root 64 2007-05-25 09:20 11 -> /dev/ptmx
+	lrwx------ 1 root root 64 2007-05-25 09:20 12 -> /dev/ptmx
+	lrwx------ 1 root root 64 2007-05-25 09:20 2 -> /dev/null
+	lrwx------ 1 root root 64 2007-05-25 09:20 3 -> socket:[111813]
+	lrwx------ 1 root root 64 2007-05-25 09:20 4 -> socket:[111955]
+	lrwx------ 1 root root 64 2007-05-25 09:20 5 -> socket:[111957]
+	lr-x------ 1 root root 64 2007-05-25 09:20 6 -> pipe:[111958]
+	l-wx------ 1 root root 64 2007-05-25 09:20 7 -> pipe:[111958]
+	lrwx------ 1 root root 64 2007-05-25 09:20 8 -> socket:[111964]
+	lrwx------ 1 root root 64 2007-05-25 09:20 9 -> socket:[111965]

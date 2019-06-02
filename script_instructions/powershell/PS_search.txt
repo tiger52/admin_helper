@@ -1,0 +1,1 @@
+Get-ChildItem -Path R:\Disk_R\GROUPDOC\HR -Filter 'ØÄÊ ÖÎ' -Recurse | Where-Object { $_.Attributes -ne "Directory"}

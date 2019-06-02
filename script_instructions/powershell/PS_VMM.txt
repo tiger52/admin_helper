@@ -1,0 +1,5 @@
+# список всех виртуальных машин
+Get-VM -VMMServer srv-co-svm01 | Select-Object * | Export-Csv .\vm-list.csv -Encoding UTF8
+
+# ще один список
+Get-ClusterGroup | ? {$_.GroupType –eq 'VirtualMachine' } | Get-VM

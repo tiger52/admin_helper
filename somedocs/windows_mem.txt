@@ -1,0 +1,13 @@
+fsmgmt.msc - кто держит файл
+
+cmd1251
+Установить: mode con: cp select=1251
+Текущее состояние: mode con: cp /status 
+
+
+Чтобы сделать гибернацию недоступной
+powercfg.exe /hibernate off
+Чтобы сделать гибернацию доступной
+powercfg.exe /hibernate on
+
+systeminfo /s 172.16.2.16 /u localhost\nadra_admin /p Cvs2ajNh% /fo list
