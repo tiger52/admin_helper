@@ -1,0 +1,19 @@
+image: $CI_REGISTRY/vessel/utility/schemaspy
+services:
+- name: gitlab.favorit:4567/vessel/utility/postgres
+  alias: pg.tst
+command: ["--insecure-registry=gitlab.favorit:4567", "--dns=10.120.12.120"]
+only:
+- devel
+allow_failure: true
+before_script:
+- eval $(ssh-agent -s)
+- echo "$SSH_PRIVATE_KEY" | ssh-add -
+- mkdir -p ~/.ssh
+- ssh-keyscan -H de2np05d.dev.ves >> ~/.ssh/known_hosts
+script:
+- export_schema.sh
+- ssh skipper@de2np05d.dev.ves "mkdir -p /data/schemaspy/$CI_PROJECT_NAME  && \
+                                sed -i '/label=\"paste\"/a \\          <a href=\"/$CI_PROJECT_NAME/\" class=\"list-group-item\">$CI_PROJECT_NAME</a>' /data/schemaspy/index.html"
+- scp -r schemaspy/* skipper@de2np05d.dev.ves:/data/schemaspy/$CI_PROJECT_NAME/
+

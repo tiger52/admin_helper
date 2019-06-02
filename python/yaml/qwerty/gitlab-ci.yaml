@@ -1,0 +1,157 @@
+variables:
+  POSTGRES_DB: postgres
+  POSTGRES_USER: postgres
+  POSTGRES_PASSWORD: ''
+  RABBITMQ_DEFAULT_USER: riko
+  RABBITMQ_DEFAULT_PASS: test_pass
+  RABBITMQ_DEFAULT_VHOST: master_test
+  DEPLOY_SCRIPT: sh -c 'hostname && mkdir -p ~/app && cd ~/app && git clone -b $CI_BUILD_REF_NAME
+    git@gitlab.favorit:vessel/$CI_PROJECT_NAME.git ; cd $CI_PROJECT_NAME && git checkout
+    $CI_BUILD_REF_NAME && git pull && rm -rf _build/ ; rebar3 as $CI_BUILD_REF_NAME
+    release && _build/$CI_BUILD_REF_NAME/rel/$CI_PROJECT_NAME/bin/$CI_PROJECT_NAME
+    stop ; _build/$CI_BUILD_REF_NAME/rel/$CI_PROJECT_NAME/bin/$CI_PROJECT_NAME start'
+
+stages:
+- build
+- test
+- docs
+- release
+- deploy
+- deploy_test
+- deploy_stage
+
+build:
+  stage: build
+  script:
+  - erl -eval 'erlang:display("Erlang v" ++ erlang:system_info(otp_release)), halt().'  -noshell
+  - profile=$CI_BUILD_REF_NAME make
+
+#unit tests:
+#  stage: test
+#  only:
+#    - tags
+#    - master
+#    - devel
+#    - rc
+#  script:
+#    - erl -eval 'erlang:display(erlang:system_info(system_version)), halt().' -noshell
+#    - profile=$CI_BUILD_REF_NAME make eunit
+
+common tests:
+  stage: test
+  services:
+  - name: gitlab.favorit:4567/vessel/utility/postgres
+    alias: pg.tst
+  - name: gitlab.favorit:4567/vessel/utility/redis
+    alias: redis.tst
+  script:
+  - erl -eval 'erlang:display(erlang:system_info(system_version)), halt().' -noshell
+  - profile=$CI_BUILD_REF_NAME make ct
+
+xref:
+  stage: test
+  script:
+  - erl -eval 'erlang:display(erlang:system_info(system_version)), halt().' -noshell
+  - profile=$CI_BUILD_REF_NAME make xref
+
+dialyze:
+  stage: test
+  script:
+  - erl -eval 'erlang:display("Erlang v" ++ erlang:system_info(otp_release)), halt().'  -noshell
+  - profile=$CI_BUILD_REF_NAME make dialyze
+
+code style:
+  allow_failure: true
+  script:
+  - git clone git@gitlab.favorit:vessel/elvis_config.git
+  - elvis rock --config elvis_config/elvis.config
+
+cover report:
+  stage: docs
+  only:
+  - tags
+  - master
+  - devel
+  - rc
+  script:
+  - profile=$CI_BUILD_REF_NAME make cover-report
+
+#all docs:
+#  stage: docs
+#  only:
+#    - tags
+#    - master
+#    - devel
+#    - rc
+#  script:
+#    - profile=$CI_BUILD_REF_NAME make docs
+
+swagger:
+  stage: docs
+  only:
+  - devel
+  script:
+  - rebar3 as devel compile
+  - ./swagger.sh $CI_BUILD_REF_NAME && ssh skipper@de2np02d.dev.ves "mkdir -p /opt/swagger/platform/$CI_PROJECT_NAME/"
+    && scp swagger.json skipper@de2np02d.dev.ves:/opt/swagger/platform/$CI_PROJECT_NAME/
+
+deploy devel:
+  stage: deploy
+#  when: manual
+  only:
+  - devel
+  script:
+  - ssh skipper@de2np04d.dev.ves $DEPLOY_SCRIPT
+
+build docker:
+  stage: release
+  image: $CI_REGISTRY/vessel/utility/docker:latest
+  variables:
+    CONTAINER_RELEASE_IMAGE: $CI_REGISTRY/$CI_PROJECT_PATH
+  services:
+  - name: $CI_REGISTRY/vessel/utility/docker:dind
+    command: ['"--insecure-registry=gitlab.favorit:4567"', '"--dns=10.120.12.120"']
+    alias: docker
+  only:
+  - devel
+  - stage
+  before_script:
+  - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY
+  script:
+  - docker run --rm -v $CI_PROJECT_DIR:/app -w /app --name ci-temp-docker -t gitlab.favorit:4567/vessel/utility/erlang:21-ci
+    sh -c "rebar3 as devel_docker tar"
+  - docker pull $CONTAINER_RELEASE_IMAGE:devel || true
+  - docker build --cache-from $CONTAINER_RELEASE_IMAGE:devel -t $CONTAINER_RELEASE_IMAGE:devel
+    -t $CONTAINER_RELEASE_IMAGE:devel_$CI_COMMIT_SHA .
+  - docker push $CONTAINER_RELEASE_IMAGE:devel
+  - docker push $CONTAINER_RELEASE_IMAGE:devel_$CI_COMMIT_SHA
+
+.deploy to k8s: &deploy_to_k8s
+  stage: deploy
+  image: $CI_REGISTRY/vessel/utility/kubectl:latest
+  when: manual
+  only:
+  - devel
+  - stage
+  script:
+  - envsubst < k8s.yaml > generated.k8s.yaml
+  - kubectl apply -n $K8SNAMESPACE -f generated.k8s.yaml
+
+deploy stage:
+  <<: *deploy_to_k8s
+  stage: deploy_stage
+  environment:
+    name: stage
+  variables:
+    K8SNAMESPACE: platform-stage
+    ERLCOOKIE: pl-cokie
+
+deploy test:
+  <<: *deploy_to_k8s
+  stage: deploy_test
+  environment:
+    name: test
+  variables:
+    K8SNAMESPACE: platform-test
+    ERLCOOKIE: pl-cokie
+
