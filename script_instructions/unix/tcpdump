@@ -1,0 +1,2 @@
+tcpdump -vv -n -i vlan221 igmp
+

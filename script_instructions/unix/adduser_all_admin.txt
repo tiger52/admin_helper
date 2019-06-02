@@ -1,0 +1,19 @@
+adduser admin_gaa
+adduser admin_mea
+adduser admin_sdv
+adduser admin_lvo
+adduser admin_bsv
+
+vim /etc/shadow
+
+admin_gaa:$1$JFMPv0Nz$okrGOr9BKZ2M1URIy1HMY0:15980:0:99999:7:::
+admin_mea:$6$FLG5pa68$aTvAeVLeb1VcZEEyj1iLpsI6EttDC5hfr8I0ZX.q4o0NUpBJE/eG3vqIvdOnfPYVEQua3jAGhBPXypE8o5BXk1:15980:0:99999:7:::
+admin_sdv:$6$j6vcA4Bs$79aWDhdHyHzVcOVTdKV6tMFOtZZhyJcC96IWnxWBfy.FqjPZ1VzvgbmH7iLHOhLiMNU5s9f3ZlMyTIQLKUA0v/:15980:0:99999:7:::
+admin_lvo:$6$01IrDMEK$rIG9DwGZl6IG3tU9gHkgea086oVz6FLyMfyFEqL2aNSN54fnRMWEyWEEGGAxZLYcysFpMfprva7/kd605skJo0:15980:0:99999:7:::
+admin_bsv:$6$lMIasrCM$mlIs02.Uo7z0iubd8cvDWZiQKppIONq5DOp6Isx1LquIFH348FbOxNo/jPivlZonkT6NHeLsfuXbDvBgz3rkQ/:15980:0:99999:7:::
+
+admin_gaa
+admin_mea
+admin_sdv
+admin_lvo
+admin_bsv

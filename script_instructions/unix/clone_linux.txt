@@ -1,0 +1,9 @@
+# making clone CentOS 6.3
+#in rules files deleting old eth*
+
+vim /etc/udev/rules.d/70-persistent-net.rules
+start_udev
+service network restart
+
+# PCI device 0x8086:0x100f (e1000)
+SUBSYSTEM=="net", ACTION=="add", DRIVERS=="?*", ATTR{address}=="00:50:56:9c:33:0d", ATTR{type}=="1", KERNEL=="eth*", NAME="eth0"

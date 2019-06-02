@@ -1,0 +1,188 @@
+du -kx / | egrep -v "\./.+/" | sort 
+| grep -v '^#' | sed '/^$/d' | more #переписать, потомучто не сортирует
+du -sckh /home/folder/* | sort -rn #сортировка папок по размеру
+# используемие порти
+netstat -tlnp | grep 1521
+
+# файлы старше 32 дней удаляються
+/usr/bin/find /home/folder/ -name '*.*' -type f -mtime +32 -print0 | xargs -0 /bin/rm -vf 2>&1 
+# файлы чотко за 32 дня назад
+/usr/bin/find /home/folder/ -name '*.*' -type f -mtime 32 -delete
+
+# запись диска и создание образа из файлов
+cdrecord -scanbus
+cdrecord dev=0,0,0 blank=fast -speed=4 -v
+dvdrecord dev=/dev/cdrom blank=fast -speed=4 -v
+mkisofs -o keyfc.iso -J -R -A -v -V Key_FC /home/babiksv/Key_FC/
+cdrecord -v -eject speed=4 dev=0,0,0 keyfc.iso
+
+#инфо о пакетах
+rpm -qa --queryformat '%{NAME}-%{VERSION}-%{RELEASE}-%010{SIZE}-%{DESCRIPTION}'
+rpm -q --queryformat '%{NAME}-%{VERSION}-%{RELEASE}-%010{SIZE}-%{DESCRIPTION}\n\n' name_of_packeg
+
+for login in ` awk -F ':' '{ print $1 }' /etc/samba/smbpasswd`; do useradd $login && smbpasswd -e -n $login; done
+
+tcpdump -v src port 22 -l | tee 22.src #слежка за портом
+tcpdump -v dst port 22 -l | tee 22.dst
+# nice statistic view
+netstat -nat | awk '{print $6}' | sort | uniq -c | sort -n
+
+du -h | grep [1-9]G | sort -n #отсортеровать по гигабайтам
+
+dd if=/dev/zero of=/tmp/myfile bs=1024 count=1024
+
+#очистка кеша
+sync; echo 3 | sudo tee /proc/sys/vm/drop_caches
+
+fsck -n /dev/sdX  #проверка на ошибки без исправления
+
+smartctl --all /dev/sdX #информая о диске
+
+# установить дату
+date MMDDhhmmCCYY.ss
+date -d '06/12/2012 07:21:22' +"%s"
+date -d 'MM/DD/YYYY 07:21:22' +"%s"
+date -d @`printf "%d\n" 0x58d80b52`
+
+# time zone
+sudo mv /etc/localtime /etc/localtime.bak
+sudo ln -s /usr/share/zoneinfo/Europe/Kiev /etc/localtime
+
+
+# view wwn
+cat /sys/class/scsi_host/host1/device/fc_host/host1/port_name
+
+# random string
+cat /dev/urandom | tr -dc "a-zA-Z0-9@#$%^&*()_+?><~\;" | fold -w 32 | head -n 1
+
+# tmpfs
+mount -t tmpfs -o size=1024m tmpfs /tmp/tmpfs/
+
+# send mail
+export i=`hostname`; echo "this is the test body $i" | mail -s "this is the test subject" "s.babik@oll.tv"
+mail -s "hello" "s.babik@oll.tv" <<EOF
+hello
+world
+EOF
+
+### SSH ###
+# proxy ssh
+ssh -C2qTnN -D 8080 username@remote_machine.com # on socks_v5 127.0.0.1:8080
+ssh -C2qTnN -D 8080 root@g50-trk-gw1
+ssh-keygen -f "/home/tiger_s/.ssh/known_hosts" -R g50-trk-gw1.prod.oll.tv
+# ssh via proxy (using netcat)
+ssh root@176.111.58.101 -p 22 -o "ProxyCommand=nc -X 5 -x 192.95.68.74:35923 %h %p"
+
+# sudo
+sudo -u jenkins pm2 list
+
+### SED ###
+#The character can be anything, as long as all the separators are the same:
+sed -i "" "s♥${search}♥${replace}♥g" config.php
+# grep by pattern and show regular expression from whole row
+sed -n '/status=deferred/s/.*to=<\(.*\)>, relay.*/\1/p' /var/log/maillog
+# insert after first match
+sed "/^  - deploy/a \  - deploy_test\n  - deploy_stage" .gitlab-ci.yml
+
+# view sertificate
+openssl x509 -text -in /path/cert.pem | less
+openssl req -in mycsr.csr -noout -text
+curl -vvI https://gnupg.org
+openssl s_client -showcerts -connect mail.nixcraft.net:443
+
+#Use the following syntax to force a user to change their password at next logon on a Linux:
+chage -d 0 {user-name}
+
+# archived old logs
+/usr/bin/xz -qq -1 -T4 /var/log/trafficserver/access.log_*.old
+
+#AWK
+tail -f /var/log/trafficserver/access.log | awk -F" : " '{a=match($3, /[4-9].../); if(a) {print $2"\t"$3"\t"$5}}'
+printf "ip\t\ttime(s)\tsize(mb)\n"; tail -f /var/log/trafficserver/access.log | grep "\.ts" | awk -F" : " '{{a=$3} if ( a~"[5-9][0-9][0-9][0-9]") {print $2"\t"$3/1000"\t"$5/1024/1024}}'
+
+# ip
+ip link add link bond0 name vlan2102 type vlan id 2102
+ip addr [ add | del ] address dev ifname
+ip address add 91.238.195.243/27 dev vlan2102
+ip link delete vlan2102
+# bonding
+cat /sys/class/net/bonding_masters 
+cat /sys/class/net/bond0/bonding/slaves 
+echo -ens1f1 > /sys/class/net/bond0/bonding/slaves
+cat /sys/class/net/bond0/bonding/slaves 
+echo -ens1f0 > /sys/class/net/bond0/bonding/slaves
+echo +bond1 > /sys/class/net/bonding_masters
+cat /sys/class/net/bonding_masters 
+echo +ens1f0 > /sys/class/net/bond1/bonding/slaves
+echo +ens1f1 > /sys/class/net/bond1/bonding/slaves
+
+
+# look for domain on all dns
+dns=(172.30.255.23 172.30.255.24 172.30.1.23 172.30.1.24); for i in ${dns[@]}; do printf "dns=$i: "; dig +noall +answer @$i g50-n03.prod.oll.tv; echo; done
+
+# generate hash for password
+openssl passwd -apr1
+
+## Centos 7
+## Deprecated command	Replacement command(s)
+arp 					ip n (ip neighbor)
+ifconfig 				ip a (ip addr), ip link, ip -s (ip -stats)
+iptunnel 				ip tunnel
+iwconfig 				iw
+nameif 					ip link, ifrename
+netstat 				ss, ip route (for netstat-r), ip -s link (for netstat -i), ip maddr (for netstat-g)
+route 					ip r (ip route)
+
+# You can use the uniq command to get counts of sorted repeated lines:
+sort ips.txt | uniq -c
+
+# test ns on caa record
+dig google.com type257
+
+#parted
+mkpart & mklabel
+
+# curl
+curl ipinfo.io/ip
+# curl via proxy
+curl -i -x http://80.91.181.232:3128 -k https://dev.oll.tv/ispAPI/auth2?login=vodafone
+# repos
+curl -O http://repo.zabbix.com/zabbix/3.2/rhel/7/x86_64/zabbix-release-3.2-1.el7.noarch.rpm
+curl -O https://rpms.remirepo.net/enterprise/remi-release-7.rpm
+# Uploading File
+curl -T '/path/to/local/file.txt' 'http://example.com/webdav/test/new_name.txt'
+# own resolve
+curl -I --resolve 's.ollcdn.net:80:91.238.194.8' http://s.ollcdn.net/files/json/ukrtelecom.json
+
+# enable ports below 1024 for user
+yum install -y libcap-ng
+setcap 'cap_net_bind_service=+ep' /usr/bin/node
+## $getcap 'cap_net_bind_service=+ep' /usr/bin/node
+## /usr/bin/node = cap_net_bind_service+ep
+
+# first sort by column 4 after column 2
+sort -k4,4 -k2 20-00_traff_access
+
+### systemd
+# To list the started unit files, sorted by the time each of them took to start up:
+systemd-analyze blame | head
+
+#You can also create an SVG file which describes your boot process graphically, similiar to Bootchart:
+systemd-analyze plot > plot.svg
+
+# usefull variables
+$# - Number of command-line arguments
+$? - Exit status of a command, function, or the script itself
+$! - PID (process ID) of last job run in background
+$_ - Special variable set to final argument of previous command executed
+$$ - Process ID (PID) of the script itself
+
+# yaml file linter
+ruby -ryaml -e "p YAML.load(STDIN.read)" < local.yaml
+python -c 'import yaml, sys; print(yaml.safe_load(sys.stdin))' < local.yaml
+
+# generate password
+apg -m 10 -x 10 -t -M NC
+
+# awk after grep
+grep --line-buffered */foldres/file | awk '{print $3}'

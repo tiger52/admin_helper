@@ -1,0 +1,70 @@
+# если нет ключа, вот:
+ssh-keygen -t rsa -C root@k21-ansible
+# добавление публичного ключа на удаленый сервер
+cat /root/.ssh/id_rsa.pub | ssh ip_remote_server "mkdir ~/.ssh && cat >> ~/.ssh/authorized_keys"
+cat /root/.ssh/id_rsa.pub | ssh ip_remote_server "cat >> ~/.ssh/authorized_keys"
+
+
+#добавление влана
+ifconfig vlan_device create
+ifconfig vlan_device vlan vlan_id vlandev parent_device
+ifconfig vlan0 inet 128.130.34.35 netmask 255.255.255.128
+ifconfig vlan_device destroy
+
+# reload network
+/etc/rc.d/netif restart; /etc/rc.d/routing restart
+
+# restart singl interface
+service netif restart wlan0
+
+#update from 9 to 10
+env UNAME_r=9.2-RELEASE freebsd-update -v debug fetch
+freebsd-update install
+
+# добавить пользователя в группу
+pw groupmod developers -m username
+pw groupshow developers
+
+# sed
+sed -i -e "s/trololo/lalala/g" file
+
+#GPART
+ls /dev/daX
+gpart list
+gpart show da1
+gpart create -s GPT da1
+gpart show da1
+gpart add -t freebsd-ufs -b 34 -s XXXXXXX da1
+newfs -U /dev/da1p1
+mount /dev/da1p1 /mnt
+ls /mnt/
+# resize disk after vmvare increase disk
+gpart show [daN]
+gpart recover ada0 # if corrupted
+sysctl kern.geom.debugflags=16
+gpart resize -i 2 -s 47G da0 # size must be that we want to receive 
+growfs /dev/da0p2 OR growfs -y /dev/gpt/rootfs
+
+
+# add vlan
+ifconfig vlan1017 create
+ifconfig vlan1017 vlan 1017 vlandev lagg0
+#del vlan
+ifconfig vlan1017 destroy
+
+# find
+
+# lacp -bonding
+ifconfig lagg1 create # take out from lagg
+ifconfig lagg1 -laggport ix1 # take out from lagg
+ifconfig lagg1 laggport ix1	 # add interface to lagg
+# If there are two systems online with the same VHID, the one with the lowest "advskew" will become master
+ifconfig fxp0 up
+ifconfig fxp1 up
+ifconfig lagg0 create 
+ifconfig lagg0 up laggproto lacp laggport fxp0 laggport fxp1 10.0.0.3/24
+#in config
+ifconfig_fxp0="up"
+ifconfig_fxp1="up"
+cloned_interfaces="lagg0"
+ifconfig_lagg0="laggproto lacp laggport fxp0 laggport fxp1 10.0.0.3/24"

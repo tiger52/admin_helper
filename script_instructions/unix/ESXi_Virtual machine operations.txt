@@ -1,0 +1,17 @@
+Virtual machine operations
+
+vim-vmd solo/registervm <path to VM's .vmx file> - register VM on a host
+vim-cmd vmsvc/getallvms - list all VMs registered on the host
+
+* in the following commands replace <vmid> with virtual machine ID obtained by running the previous command
+
+vim-cmd vmsvc/power.getstate <vmid> - show power state of a VM
+vim-cmd vmsvc/power.shutdown  <vmid>  - shutdown a VM (shutdown guest)
+vim-cmd vmsvc/power.reset  <vmid>  - reset a VM
+vim-cmd vmsvc/power.off <vmid>  - power off a VM
+vim-cmd vmsvc/power.on <vmid> - power on a VM
+vim-cmd vmsvc/power.reboot <vmid> - reboot a VM
+vim-cmd vmsvc/get.summary  <vmid>  - get summary information for a VM
+vim-cmd vmsvc/unregister  <vmid>  - unregister a VM from a host
+
+esxcli storage filesystem list - like mount

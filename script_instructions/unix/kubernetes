@@ -1,0 +1,46 @@
+# Force Deletion
+kubectl delete pods <pod> --grace-period=0 --force
+# token we can use to log in
+kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | grep admin-user | awk '{print $1}')
+
+# dockerconfigjson
+kubectl get secret regcred --output="jsonpath={.data.\.dockerconfigjson}" | base64 -d
+
+# create secret certificate
+openssl genrsa -out dashboard.key 2048
+openssl req -x509 -new -nodes -key dashboard.key -subj "/CN=kubernetes.ves" -days 3650 -out dashboard.crt
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/private/nginx-selfsigned.key -out /etc/ssl/certs/nginx-selfsigned.crt
+kubectl create secret generic kubernetes-dashboard-certs --from-file=tls.crt=dashboard.crt --from-file=tls.key=dashboard.key --namespace kube-system
+#variant 2
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout trading-tools-stage.key -out trading-tools-stage.crt -subj "/CN=trading-tool.stage.ves/O=trading-tool.stage.ves"
+kubectl create secret -n tradingtool-stage tls trading-tools-stage --key trading-tools-stage.key --cert trading-tools-stage.crt
+
+#pods on one node
+kubectl get pod --all-namespaces -o=jsonpath='{.items[?(@.spec.nodeName=="kube03")].metadata.name}' | sed "s/[ $]/\n/g"
+kubectl get pod --all-namespaces -o wide --field-selector=spec.nodeName=kube07
+# show pod name and ip
+kubectl get pods -n aggelos -o=jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.status.podIP}{"\n"}{end}'
+
+kubectl run -i --tty busybox --image=busybox -- sh      # Run pod as interactive shell
+
+# add label
+kubectl label node kube01 slava-label=true
+# delete label
+kubectl label node kube01 slava-label-
+
+# set role
+kubectl label node de2k8s04.stage.ves node-role.kubernetes.io/ingress=true
+
+# for ingress, you need look node-selector in controller daemonset
+
+# temp erlang docekr
+kubectl run -n b2b-stage --rm=true --image=gitlab.favorit:4567/vessel/utility/erlang -it erlangnode
+
+# Some Notes
+- Use a Deployment for stateless services, like frontends, where scaling up and down the number of replicas and rolling out updates are more important than controlling exactly which host the Pod runs on. Use a DaemonSet when it is important that a copy of a Pod always run on all or certain hosts, and when it needs to start before other Pods.
+
+# Proxy to container 
+kubectl port-forward -n monitoring alertmanager-main-0 9093
+
+# maintanence mode
+kubectl drain kube03 --ignore-daemonsets

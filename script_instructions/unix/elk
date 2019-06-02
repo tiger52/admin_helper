@@ -1,0 +1,21 @@
+# show all indeces
+curl -X GET "localhost:9200/_cat/indices?v"
+# sort by index
+curl -X GET "localhost:9200/_cat/indices?v&s=index"
+# show data in index '.kibana'
+curl -s -XPOST 'localhost:9200/.kibana/_search?pretty' -d '{ "query": { "match_all": {} } }' 
+
+# 
+curl -s -X PUT "localhost:9200/_snapshot/backups" -H 'Content-Type: application/json' -d'
+{
+  "type": "fs",
+  "settings": {
+    "location": "/usr/share/elasticsearch/data/backup/"
+  }
+}
+'
+# show snapshots
+curl -s -X GET 'localhost:9200/_snapshot/_all'
+
+# delete index
+curl -XDELETE 'http://localhost:9200/INDEXNAME'

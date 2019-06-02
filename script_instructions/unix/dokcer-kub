@@ -1,0 +1,6 @@
+# Push a new image to a registry
+docker tag rhel-httpd registry-host:5000/myadmin/rhel-httpd:version
+docker push registry-host:5000/myadmin/rhel-httpd
+
+# go to web morda and edit yaml, and push UPDATE; or:
+kubectl apply -f deployment-smartapi-pay.yaml

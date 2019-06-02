@@ -1,0 +1,2 @@
+# для переноса записи с одного флусоника в другой или с одного канала на другой можно юзать следующую команду 
+/opt/flussonic/contrib/rescan_dvr.erl rebuild /content/dvr/evdvr/vipmegahithd/

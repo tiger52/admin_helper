@@ -1,0 +1,23 @@
+wget https://packages.erlang-solutions.com/erlang/esl-erlang/FLAVOUR_1_general/erlang_20.2.2-1~centos~7_amd64.rpm
+yum install erlang.x86_64
+yum install rabbitmq-server-3.7.3-1.el7.noarch.rpm
+systemctl start rabbitmq
+
+wget https://dl.bintray.com/rabbitmq/all/rabbitmq-server/3.7.3/rabbitmq-server-3.7.3-1.el7.noarch.rpm
+
+
+[rabbitmq-erlang]
+name=rabbitmq-erlang
+baseurl=https://dl.bintray.com/rabbitmq/rpm/erlang/20/el/7
+gpgcheck=1
+gpgkey=https://dl.bintray.com/rabbitmq/Keys/rabbitmq-release-signing-key.asc
+repo_gpgcheck=0
+enabled=1
+
+
+
+rabbitmq-plugins enable rabbitmq_management
+rabbitmqctl add_user admin P@ssword
+rabbitmqctl set_permissions -p /admin ".*" ".*" ".*"
+rabbitmqctl set_user admin administrator
+rabbitmqctl set_user_tags admin administrator

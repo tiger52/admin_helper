@@ -1,0 +1,17 @@
+# from human time to unix time
+time.mktime(time.strptime("2016-08-22 00:55:00", "%Y-%m-%d %H:%M:%S"))
+
+# SimpleHTTPServer
+python2.7 -m SimpleHTTPServer 80
+
+# when you have truble with pip and some library
+sudo python -m easy_install --upgrade pyOpenSSL
+
+# show yum var
+python -c 'import yum, pprint; yb = yum.YumBase(); pprint.pprint(yb.conf.yumvar, width=1)'
+
+# json formatter
+cat swagger.json | python -m json.tool > swagger_.json
+
+# yaml to json
+alias yaml2json='python -c "import sys,yaml,json;sys.tracebacklimit=0;print(json.dumps(yaml.load(open(sys.argv[1]).read()), indent=2))"'

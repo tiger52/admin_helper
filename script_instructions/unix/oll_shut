@@ -1,0 +1,2 @@
+# grep nginx logs
+tail -f /data/loghost/services/prod.oll.tv/nginx/*-ng[12].prod.oll.tv/2017/01/04.log | awk '{print $1"\t"$9"\t"$11}'

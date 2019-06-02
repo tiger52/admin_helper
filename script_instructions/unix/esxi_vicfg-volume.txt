@@ -1,0 +1,14 @@
+To mount a datastore with vicfg-volume
+1
+List all volumes that have been detected as snapshots or replicas.
+vicfg-volume <conn_options> --list
+2
+Run vicfg-volume --persistent-mount with the VMFS-UUID or label as an argument to mount a volume.
+vicfg-volume <conn_options>  --persistent-mount <VMFS-UUID|label>
+This command fails if the original copy is online.
+You can later run vicfg-volume --unmount to unmount the snapshot or replica volume.
+vicfg-volume <conn_options> --unmount <VMFS-UUID|label>
+The vicfg-volume command supports resignaturing a snapshot volume and mounting and unmounting the volume. You can also make the mounted volume persistent across reboots and query a list of snapshot volumes and original volumes.
+
+
+esxcli <conn_options> storage filesystem volume mount --volume-label=<label>|--volume-uuid=<VMFS-UUID>

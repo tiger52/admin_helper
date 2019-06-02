@@ -1,0 +1,4 @@
+# add sertificate for communication
+$ sudo cp ~/Downloads/gitlabfavorit.crt /usr/local/share/ca-certificates/
+$ sudo update-ca-certificates 
+

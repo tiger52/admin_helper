@@ -1,0 +1,17 @@
+500 Internal Server Error[21] — любая внутренняя ошибка сервера, которая не входит в рамки остальных ошибок класса.
+501 Not Implemented server error response code indicates that the request method is not supported by the server and cannot be handled
+502 Bad Gateway — сервер, выступая в роли шлюза или прокси-сервера, получил недействительное ответное сообщение от вышестоящего сервера.
+503 Service Unavailable
+504 Gateway Timeout — сервер в роли шлюза или прокси-сервера не дождался ответа от вышестоящего сервера для завершения текущего запроса.
+
+410 Gone — такой ответ сервер посылает, если ресурс раньше был по указанному URL, но был удалён и теперь недоступен. Серверу в этом случае неизвестно и местоположение альтернативного документа, например, копии).
+
+206 Partial Content — сервер удачно выполнил частичный GET-запрос, возвратив только часть сообщения. В заголовке Content-Range сервер указывает байтовые диапазоны содержимого. Особое внимание при работе с подобными ответами следует уделить кэшированию. Появился в HTTP/1.1.
+
+301 Moved Permanently («перемещено навсегда»)[2][6].
+302 Moved Temporarily («перемещено временно»)[2][6].
+302 Found («найдено»)[6].
+304 Not Modified
+
+499 in Nginx means that the client closed the connection before the server answered the request. In my experience is usually caused by client side timeout. As I know it's an Nginx specific error code.
+

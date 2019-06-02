@@ -1,0 +1,35 @@
+172.30.101.105
+172.30.108.75
+
+
+-f mpegts "udp://239.32.77.1:2000?localaddr=172.30.31.16&pkt_size=1316"
+
+
+./configure --prefix=/etc/nginx --sbin-path=/usr/sbin/nginx --modules-path=/usr/lib64/nginx/modules --conf-path=/etc/nginx/nginx.conf --error-log-path=/var/log/nginx/error.log --http-log-path=/var/log/nginx/access.log --pid-path=/var/run/nginx.pid --lock-path=/var/run/nginx.lock --user=www --group=www --with-compat --with-file-aio  --with-http_perl_module --with-cc-opt='-O2 -g -pipe -Wall -Wp,-D_FORTIFY_SOURCE=2 -fexceptions -fstack-protector-strong --param=ssp-buffer-size=4 -grecord-gcc-switches -m64 -mtune=generic -fPIC' --with-ld-opt='-Wl,-z,relro -Wl,-z,now -pie' --without-http_gzip_module --add-module=../nginx-rtmp-module
+
+
+./configure --prefix=/etc/nginx --sbin-path=/usr/sbin/nginx --modules-path=/usr/lib64/nginx/modules --conf-path=/etc/nginx/nginx.conf --error-log-path=/var/log/nginx/error.log --http-log-path=/var/log/nginx/access.log --pid-path=/var/run/nginx.pid --lock-path=/var/run/nginx.lock --user=www --group=www --with-compat --with-file-aio --with-cc-opt='-O2 -g -pipe -Wall -Wp,-D_FORTIFY_SOURCE=2 -fexceptions -fstack-protector-strong --param=ssp-buffer-size=4 -grecord-gcc-switches -m64 -mtune=generic -fPIC' --with-ld-opt='-Wl,-z,relro -Wl,-z,now -pie' --without-http_gzip_module --add-module=../nginx-rtmp-module
+
+Configuration summary
+  + using system PCRE library
+  + using system OpenSSL library
+  + zlib library is not used
+
+  nginx path prefix: "/etc/nginx"
+  nginx binary file: "/usr/sbin/nginx"
+  nginx modules path: "/usr/lib64/nginx/modules"
+  nginx configuration prefix: "/etc/nginx"
+  nginx configuration file: "/etc/nginx/nginx.conf"
+  nginx pid file: "/var/run/nginx.pid"
+  nginx error log file: "/var/log/nginx/error.log"
+  nginx http access log file: "/var/log/nginx/access.log"
+  nginx http client request body temporary files: "client_body_temp"
+  nginx http proxy temporary files: "proxy_temp"
+  nginx http fastcgi temporary files: "fastcgi_temp"
+  nginx http uwsgi temporary files: "uwsgi_temp"
+  nginx http scgi temporary files: "scgi_temp"
+
+
+
+  groupadd -g 80 www
+  useradd -u 80 -g 80 -s /bin/bash -m -d /home/www/ -c "user for applications" www

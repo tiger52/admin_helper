@@ -1,0 +1,70 @@
+#add lvm disk
+
+#First find your host bus number
+grep mpt /sys/class/scsi_host/host?/proc_name
+
+#Which should return a line like
+/sys/class/scsi_host/host0/proc_name:mptspi
+#where host0 is the relevant field.
+#use this to rescan the bus with the following command
+echo "- - -" > /sys/class/scsi_host/host0/scan
+
+echo 1 > /sys/block/sda/device/rescan
+
+fdisk /dev/sdX
+
+pvcreate /dev/sdXX
+# vgcreate my_volume_group /dev/sdXX /dev/sdXN # создать вол-группу my_volume_group
+vgextend VolGroup00 /dev/sdXX		# добавить в вол-группу диск sdXX
+lvcreate -n name -L10G VolGroup00	# создать лог.-диск в метрах
+lvcreate -n opt -l5118 VolGroup		# создать лог.-диск в екстенсах 
+lvextend -L +27G /dev/mapper/VolGroup00-LogVol00		# просто два варианта
+
+e2fsck -f /dev/mapper/VolGroup00-LogVol00
+lvextend -l +100%FREE /dev/mapper/VolGroup00-LogVol00	#
+resize2fs /dev/mapper/VolGroup00-LogVol00
+
+lvextend -l +100%FREE /dev/mapper/VolGroup00-LogVol00
+
+
+mkswap -L swap /dev/VolGroup00/swap
+
+------------------------------------
+     уменьшение
+------------------------------------
+umount /dev/vg/lv
+e2fsck -f /dev/vg/lv
+resize2fs /dev/vg/lv 524288 # in blocks ~ 2GB
+#lvreduce -L-1G /dev/vg/lv
+lvreduce -L 2G /dev/vg/lv
+mount /dev/vg/lv /???
+
+------------------------------------
+    увеличение
+------------------------------------
+parted /dev/sda resize gavno
+fdisk /dev/sda
+-    To Create new partition Press n.
+-    Choose primary partition use p.
+-    Choose which number of partition to be selected to create the primary partition.
+-    Press 1 if any other disk available.
+-    Change the type using t.
+-    Type 8e to change the partition type to Linux LVM.
+-    Use p to print the create partition ( here we have not used the option).
+-    Press w to write the changes.
+pvresize
+vgresize
+lvextend
+xfs_growfs /
+done
+
+------------------------------------
+     add script for template
+------------------------------------
+pvcreate /dev/sdc
+vgcreate vg_data /dev/sdc
+lvcreate -l100%FREE vg_data -n lv_data
+mkfs.xfs /dev/mapper/vg_data-lv_data
+mkdir /data
+echo "/dev/mapper/vg_data-lv_data   /data  xfs  noatime  0 0" >> /etc/fstab
+mount -a

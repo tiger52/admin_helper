@@ -1,0 +1,59 @@
+CREATE USER 'admin_bsv'@'localhost' IDENTIFIED BY 'mypass';
+CREATE USER 'admin_bsv'@'127.0.0.1' IDENTIFIED BY 'mypass';
+CREATE USER 'admin_bsv'@'' IDENTIFIED BY 'mypass';
+
+select host,user,password,super_priv from mysql.user;
+GRANT ALL PRIVILEGES ON *.* TO 'admin_bsv'@'' WITH GRANT OPTION;
+
+CREATE USER 'admin_bsv'@'%' IDENTIFIED BY '1q2w3e4r';
+GRANT ALL PRIVILEGES ON *.* TO 'admin_bsv'@'%' WITH GRANT OPTION;
+
+===
+CREATE USER 'admin'@'localhost' IDENTIFIED BY 'password';
+CREATE USER 'admin'@'127.0.0.1' IDENTIFIED BY 'password';
+CREATE USER 'admin'@'%' IDENTIFIED BY 'P@ssword';
+GRANT ALL PRIVILEGES ON *.* TO 'admin'@'localhost' WITH GRANT OPTION;
+GRANT ALL PRIVILEGES ON *.* TO 'admin'@'127.0.0.1' WITH GRANT OPTION;
+GRANT ALL PRIVILEGES ON *.* TO 'admin'@'%' WITH GRANT OPTION;
+===
+-- new password
+ALTER USER 'admin'@'localhost' IDENTIFIED BY 'newpassword';
+SET PASSWORD FOR 'bob'@'%.loc.gov' = PASSWORD('newpass');
+
+GRANT ALL ON vwall.* TO 'vwalluser'@'localhost';
+
+INSERT INTO vwall.users (name, pass, company) VALUES('ictv', MD5('ictv'), 'ICTV');
+update vwall.users set pass=MD5('ictvtest') where name like 'ictv';
+update vwall.users set pass=MD5('ictvtest') where id_user=4;
+
+DROP USER [IF EXISTS] 'admin'@'127.0.0.1';
+
+
+# операции с данными в мускуле
+set @myvar = 3;
+select @myvar;
+!!!
+
+# восстановить одну таблицу из полного бекапа
+awk '/CREATE TABLE `table_name`/,/UNLOCK TABLES/' dump.sql > table_name.sql
+mysql -u username -p password database_name < table_name.sql
+
+# найти мак по почте пользователя
+SELECT ID, serial, mac FROM olltv.user_devices where fk_user=(SELECT ID FROM olltv.users where email like 'zhenya.kurilenko@mail.ru');
+
+# change password
+ALTER USER 'admin_bsv'@'localhost' IDENTIFIED BY 'mypass';
+#in MariaDB
+SET PASSWORD FOR 'bob'@'%.loc.gov' = PASSWORD('newpass');
+
+#dump one DB # with create db
+mysqldump --databases olltv --result-file=olltv_stat_schema.sql
+# export dump without data
+mysqldump --databases olltv_stat --no-data --result-file=olltv_stat_schema.sql
+mysql < dump.sql
+
+#ближайшее время в прошлом 
+select * from test_table where id >= (select max(id) from test_table where test_time < '2016-08-04 19:40:00');
+#
+select current_timestamp();
+

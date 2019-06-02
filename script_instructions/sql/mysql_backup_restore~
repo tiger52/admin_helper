@@ -1,0 +1,39 @@
+Shoph9ei
+
+--extended-insert
+mysqldump --no-defaults --host=$PROD_HOST $MYSQLUSER $PROD_PASSWORD --databases olltv --extended-insert --tables user_item_parental_protect > user_item_parental_protect.sql
+
+SET GLOBAL innodb_buffer_pool_size=2147483648; --2GB
+SET SQL_LOG_BIN = 0;
+SET autocommit=0;
+SET unique_checks=0;
+SET foreign_key_checks=0;
+
+SET SQL_LOG_BIN = 1;
+SET autocommit=1;
+SET unique_checks=1;
+SET foreign_key_checks=1;
+SET GLOBAL innodb_buffer_pool_size=134217728; --128MB
+
+echo "COMMIT;" >> user_purchases.sql
+echo "SET unique_checks=1;" >> user_purchases.sql
+echo "SET foreign_key_checks=1;" >> user_purchases.sql
+echo "SET SQL_LOG_BIN = 1;" >> user_purchases.sql
+
+
+SELECT CURRENT_TIMESTAMP,' - position' AS ' ' INTO OUTFILE '/tmp/orders.txt';
+
+[mysqld]
+innodb_buffer_pool_size=2G
+
+SELECT @@innodb_buffer_pool_size,@@SQL_LOG_BIN,@@autocommit,@@unique_checks,@@foreign_key_checks\G
+[mysql]
+innodb_flush_method = O_DSYNC;
+
+show processlist;
+UNLOCK TABLES;
+DROP DATABASE IF EXISTS olltv_tmp;CREATE DATABASE olltv_tmp;
+show engine innodb status\G
+
+
+zfs set secondarycache=none

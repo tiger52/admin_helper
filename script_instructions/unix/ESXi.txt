@@ -1,0 +1,44 @@
+esxcli storage filesystem list	- shows all volumes, mounted and unmounted, that are resolved, that is, that are not snapshot volumes.
+esxcli storage core path list	- generates a list of all LUN paths currently connected to the ESXi host.
+
+# Restarting the Management agents on ESXi
+/etc/init.d/hostd restart
+/etc/init.d/vpxa restart
+
+# show nics
+esxcli network nic list
+# show virtual nics
+esxcfg-vmknic -l
+
+
+
+vmkping
+
+==== vCenter =====
+Connect-VIServer -Server localhost
+## add vlan to all interface in cluster
+Get-Cluster k21-vmc03-test | Get-VMHost | Get-VirtualSwitch -Name "vSwitch1" | New-VirtualPortGroup -Name "k21-Int-Hosting" -VLanId 912
+
+
+
+=== PowerShell script ===
+# Get the Virtual Network Adapter
+
+$VMs = Get-Cluster g50-vmc04-reserv | Get-VM
+$Data = @()
+foreach ($VM in $VMs){
+$NICs = $VM.NetworkAdapters
+foreach ($NIC in $NICs) {
+$into = New-Object PSObject
+Add-Member -InputObject $into -MemberType NoteProperty -Name VMname $VM.Name
+Add-Member -InputObject $into -MemberType NoteProperty -Name NICtype $NIC.Type
+$Data += $into
+}
+}
+$Data 
+#| Export-Csv -Path e:\temp\admna\NICs.csv -NoTypeInformation
+
+=== get version OS ===
+Get-VMHost hostname | Get-VMHostPatch | Select Id,InstallDate,Description | ft -auto
+Get-VMHost | Select Name,Version,@{N="vCenter";E={$_.ExtensionData.CLient.ServiceUrl.Split('/')[2]}}
+Get-VMHost | Select-Object -Property parent,name,version,build

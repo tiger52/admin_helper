@@ -1,0 +1,10 @@
+# show databases
+INFO keyspace
+# delete currnet db
+FLUSHDB
+# show all keys
+KEYS *
+# use db1
+SELECT 1
+# change db
+SWAPDB 0 1

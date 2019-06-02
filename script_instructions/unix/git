@@ -1,0 +1,16 @@
+git clone <url> --branch <branch> --single-branch [<folder>]
+
+# Git force pull to overwrite local files
+git fetch --all
+git reset --hard origin/master
+git pull origin master
+
+# delete last commit
+git reset --hard HEAD@{1}
+git push -f
+
+# new branch
+git checkout -b newbranch
+
+# get old commit
+git checkout <hash>

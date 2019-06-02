@@ -1,0 +1,121 @@
+# install
+/etc/yum.repos.d/mongodb.repo
+[mongodb-org-3.4]
+name=MongoDB Repository
+baseurl=https://repo.mongodb.org/yum/redhat/$releasever/mongodb-org/3.4/x86_64/
+gpgcheck=1
+enabled=1
+gpgkey=https://www.mongodb.org/static/pgp/server-3.4.asc
+
+yum install mongodb-org-server.x86_64 mongodb-org-tools.x86_64 mongodb-org-shell.x86_64
+
+mkdir /etc/tuned/no-thp
+vi /etc/tuned/no-thp/tuned.conf
+###
+[main]
+include=virtual-guest
+
+[vm]
+transparent_hugepages=never
+###
+
+### Security
+openssl rand -base64 756 > /etc/mongo/replKey
+chmod 400 /etc/mongo/replKey
+chown mongod /etc/mongo/replKey
+
+security:
+  authorization: enabled
+
+use admin
+db.createUser(
+  {
+    user: "admin",
+    pwd: "mongo4DS",
+    roles: [ { role: "root", db: "admin" } ]
+  }
+)
+db.getSiblingDB("admin").createUser(
+  {
+    "user" : "adminds",
+    "pwd" : "mongo4DS",
+    roles: [ { "role" : "clusterAdmin", "db" : "admin" } ]
+  }
+)
+# add or remove roles
+db.grantRolesToUser("admin", [{role: "root",db: "admin"}] )
+db.revokeRolesFromUser("admin", [{"role" : "userAdminAnyDatabase", "db" : "admin"}] )
+###
+
+### DeepMetrics users ###
+use admin
+#db.createUser(  {    user: "dmetrics",    pwd: "wiewJeHet",    roles: [ { role: "readWrite", db: "admin" } ]  })
+db.createUser(  {    user: "dmetrics",    pwd: "wiewJeHet",    roles: [ { role: "readWrite", db: "deepmetrics" } ]  })
+
+use deepmetrics
+db.createUser(  {    user: "dmetrics",    pwd: "wiewJeHet",    roles: [ { role: "readWrite", db: "deepmetrics" } ]  })
+
+use rec
+db.createUser(  {    user: "dmetrics",    pwd: "wiewJeHet",    roles: [ { role: "readWrite", db: "rec" } ]  })
+
+### prod enviriment ###
+use admin
+#db.createUser(  {    user: "dmetrics",    pwd: "BesDifDym9",    roles: [ { role: "readWrite", db: "admin" } ]  })
+db.createUser(  {    user: "dmetrics",    pwd: "BesDifDym9",    roles: [ { role: "readWrite", db: "deepmetrics" } ]  })
+
+use rec
+db.createUser(  {    user: "dmetrics",    pwd: "BesDifDym9",    roles: [ { role: "readWrite", db: "rec" } ]  })
+
+use deepmetrics
+db.createUser(  {    user: "dmetrics",    pwd: "BesDifDym9",    roles: [ { role: "readWrite", db: "deepmetrics" } ]  })
+
+### end prod ###
+
+# add somthing to db and ->
+show dbs
+show databases
+
+# show users
+db.getUsers()
+db.serverStatus()
+
+# db size
+db.stats().dataSize
+db.stats().dataSize/1024/1024/1024 - in GBytes
+db.stats().indexSize/1024/1024/1024
+
+mongodb_host: ~ (127.0.0.1)
+mongodb_port: ~ (default - 27017)
+mongodb_name: ~ deepmetrics
+mongodb_user: ~ dmetrics
+mongodb_password: ~ wiewJeHet
+
+# backup
+mongodump --archive=deepmetrics.stage.20170530.archive --db deepmetrics
+# export import
+mongoexport --db rec --collection items --out rec_items.20170612.json
+mongoimport --db=rec --collection items --file=rec_items.20170612.json
+
+#
+use admin
+#db.createUser(  {    user: "dmetrics",    pwd: "wiewJeHet",    roles: [ { role: "readWrite", db: "admin" } ]  })
+db.createUser(  {    user: "admin",    pwd: "1q2w3e4r",    roles: [ { role: "root", db: "admin" } , { role: "root", db: "testbase" } ]  })
+
+### Replication ###
+
+# node1
+rs.status()
+rs.initiate()
+cfg = rs.conf()
+rs.add("k21-dm-mg2.prod.oll.tv:27017")
+rs.addArb("k21-dm-gw1.prod.oll.tv:27017")
+rs.status()
+# primary priority
+cfg = rs.conf()
+cfg.members[0].priority = 0.5
+cfg.members[1].priority = 0.5
+cfg.members[2].priority = 1
+rs.reconfig(cfg)
+# add node in hidden mode
+rs.add({_id: 6, host: "k21-trk-mg1.prod.oll.tv:27017", priority: 0, hidden: true})
+

@@ -1,0 +1,4 @@
+## Simplest http server
+$(command -v python2 || command -v python2.7 || command -v python2.6) -c "import BaseHTTPServer, SimpleHTTPServer; \
+s = BaseHTTPServer.HTTPServer(('', 80), SimpleHTTPServer.SimpleHTTPRequestHandler); \
+s.serve_forever()"

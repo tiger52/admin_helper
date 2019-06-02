@@ -1,0 +1,54 @@
+#!/bin/bash
+#dhcpdel v2.0
+
+if [ "$1" == "" ]; then
+	
+	 echo "Usage:" $0 "<username>"
+	 exit 0
+
+fi
+
+qnamecount=`cat /etc/dhcpd.conf | grep -v "^#" | awk '{print $2}' | grep -c ^$1$`
+qip=`cat /etc/dhcpd.conf | grep -v "^#"| grep $1 | awk '{print $5 $2}' | grep $1$ | awk -F\; '{print $1}'`
+
+if [ "$qnamecount" = "0" ]; then
+	 echo "ATTENTION: NAME NOT IN USE"
+	 cat /etc/dhcpd.conf | grep $1
+	 exit 0
+fi
+
+qln=`cat -n /etc/dhcpd.conf | grep -v "**#" | grep $1 | awk '{print $1 ";" $3}' | grep \;$1$ | awk -F\; '{print $1}'`
+
+echo $qln'c\' > /tmp/tmp.sed
+
+echo "#" `date +'%d.%m.%y %H:%M'` `sed -n $qln'p' /etc/dhcpd.conf` >> /tmp/tmp.sed
+
+cp /etc/dhcpd.conf /etc/dhcpconfs/dhcpd.`date +'%d%m%y%H%M'`
+
+sed -f /tmp/tmp.sed /etc/dhcpd.conf > /tmp/tmp.conf
+
+Dsize=`wc -l /tmp/tmp.conf| awk '{print $1}'`
+
+if [ "$Dsize" != "0" ]; then
+
+	cat /etc/dhcpd.conf | grep -v "**#" | grep "host $1 {"| mail -s "DHCP User deleted" dhcpadmin@nadrabank.kiev.ua 
+	cp /tmp/tmp.conf /etc/dhcpd.conf
+	cd /etc/init.d
+	./dhcpd restart
+	cd
+	rm /tmp/tmp.sed
+	rm /tmp/tmp.conf
+
+	qfile=`date +'%y%m%d%H%M%S'`
+	echo $1" "$qip > /tmp/$qfile.del
+	echo "USER" $1" "$qip "IS DELETED"
+	exit 0
+
+else
+
+	echo "SED Error: /tmp/tmp.conf is EMPTY. There may be 2 copies of "$1
+
+fi
+
+
+

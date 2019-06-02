@@ -1,0 +1,14 @@
+% check syntax; 
+file:consult('rebar.conf').
+
+% connect to cluster node
+REMNAME1=seed@$SEEDHOST; NAME1=test1@$NODE; erl -remsh  $REMNAME1 -name $NAME1 -setcookie $ERLCOOKIE
+
+% nodes in cluster
+nodes().
+
+% application started on node
+application:which_applications().
+
+% get version
+erlang:system_info(otp_release).

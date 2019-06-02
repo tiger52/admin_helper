@@ -1,0 +1,33 @@
+# автотабуляция
+set autoindent / set noautoindent
+set hlsearch / set nohlsearch
+set paste
+#save with another encoding
+write ++enc=utf-8 russian.txt
+
+
+vim -o file1 file2
+
+:split, :vsplit otherfile - открыть еще окно
+
+CTRL-W w 	перейти в слудующее
+CTRL-W h 	перейти в окно слева
+CTRL-W j 	перейти в окно внизу
+CTRL-W k 	перейти в окно наверху
+CTRL-W l 	перейти в окно справа
+CTRL-W t 	перейти в ВЕРХНЕЕ окно
+CTRL-W b 	перейти в НИЖНЕЕ окно
+#переместить окно
+CTRL-W H 	переместить в окно слева
+CTRL-W J 	переместить в окно внизу
+CTRL-W K 	переместить в окно наверху
+CTRL-W L 	переместить в окно справа
+
+For a split window:
+Ctrl-w + and Ctrl-w -   to resize the height of the current window by a single row.
+For a vsplit window:
+Ctrl-w > and Ctrl-w <   to resize the width of the current window by a single column.
+
+Ctrl-w =    To resize all windows to equal dimensions based on their splits
+Ctrl-w _    To increase a window to its maximum height
+Ctrl-w |    To increase a window to its maximum width

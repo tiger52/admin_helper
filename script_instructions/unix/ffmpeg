@@ -1,0 +1,60 @@
+# create HLS
+/usr/local/bin/ffmpeg -hide_banner -threads 1 -headers 'Content-Type: application/vnd.apple.mpegurl' -i udp://@234.2.3.4:1234 -hls_flags delete_segments -hls_allow_cache 1 -hls_time 4 -c:v libx264 -c:a aac /path/channel/index.m3u8 &
+
+# create TS
+ffmpeg -i udp://bond0.601@239.119.1.40:2000 -use_localtime 1 -use_localtime_mkdir 1 -f segment -segment_time 60 -segment_atclocktime 1 -strftime 1 -c:v copy -c:a copy 'r_iv_inter/%Y%m%d/file-%s.ts'
+
+ffmpeg -hide_banner -headers 'Content-Type: application/vnd.apple.mpegurl' -i udp://bond0.601@239.119.1.40:2000 -f hls -c:v copy -c:a copy -use_localtime 1 -use_localtime_mkdir 1 -hls_time 60  -hls_segment_filename 'r_iv_inter/%Y%m%d/file-%s.ts' index.m3u8
+
+ffmpeg -i udp://@239.119.1.40:2000 -f hls -c:v copy -c:a copy -use_localtime 1 -use_localtime_mkdir 1 -hls_time 60  -hls_segment_filename 'r_iv_inter/%Y%m%d/file-%H%M.ts' r_iv_inter/index.m3u8
+
+# cutting
+ffmpeg -ss 00:03:00 -i video.mp4 -t 60 -c copy -avoid_negative_ts 1 cut.mp4
+
+# === picture and unsilence ===
+ffmpeg -ar 48000 -ac 2 -f s16le -i /dev/zero -loop 1 -i 1920х1080_Erotica.jpg -c:v libx264 -r 25 -t 2 -b 6100k -minrate 6100k -maxrate 6100k -acodec aac eroticatv_zaglushka_2s.ts
+ffmpeg -f lavfi -i color=s=hd720:d=5 -f lavfi -i anullsrc -strict -2 -shortest out.mp4
+ffmpeg -f lavfi -i color=s=hd720:d=10 -f lavfi -i anullsrc -strict -2 -shortest -c:v libx264 -c:a aac out.mp4
+ffmpeg -f lavfi -i color=black:s=1920x1080:r=24000/1001 -f lavfi -i anullsrc -ar 48000 -ac 2 -t 20 -c:v libx264 -c:a aac out.mp4
+ffmpeg -f lavfi -i color=black:s=1920x1080:r=25000/1000 -f lavfi -i anullsrc -ar 48000 -ac 2 -t 20 -c:v libx264 -c:a aac -strict -2 out.mp4
+# setting a fixed GOP size: -g GOP_LEN_IN_FRAMES
+ffmpeg -ar 48000 -ac 2 -f s16le -i /dev/zero -loop 1 -framerate 10 -i 1920х1080_Erotica.jpg -c:v libx264 -g 2 -r 25 -t 10 -b 4000k -minrate 4000k -maxrate 4000k -acodec aac -strict -2 eroticatv_zaglushka_10s.ts
+ffmpeg -ar 48000 -ac 2 -f s16le -i /dev/zero -loop 1 -framerate 10 -i 1920х1080_Erotica.jpg -metadata:s:a:0 language=eng -c:v libx264 -g 2 -r 25 -t 12 -b 2000k -minrate 2000k -maxrate 2000k -acodec aac -strict -2 eroticatv_zaglushka_12s_2k_eng.ts
+
+#create hls from picture
+~/soft/ffmpeg-3.1.2-64bit-static/ffmpeg -loop 1 -framerate 10 -i coreimagesrc=d=10 imgpsh_fullsize.jpg -c:v libx264 -b 1200k -t 4 -vf "scale=1280x720,fps=10,format=yuv420p" -f hls -hls_time 4 -hls_flags delete_segments -hls_allow_cache 1 profilaktika.m3u8
+
+#static hls stream from picture
+~/soft/ffmpeg-3.1.2-64bit-static/ffmpeg -loop 1 -i imgpsh_fullsize.jpg -c:v libx264 -b 1200k -vf "scale=1280x720,fps=10,format=yuv420p" -f hls -hls_time 4 -hls_flags delete_segments -hls_allow_cache 1 -method PUT http://172.30.40.28/hls-tv/profilaktika/profilaktika.m3u8
+
+ffmpeg -loop 1 -i imgpsh_fullsize.jpg -c:v libx264 -b 1200k -vf "scale=1280x720,fps=10,format=yuv420p" -f hls -hls_time 4 -hls_flags -hls_allow_cache 1 -method PUT http://172.30.40.28/hls-tv/profilaktika/profilaktika.m3u8
+
+
+~/soft/ffmpeg-3.1.2-64bit-static/ffmpeg -loop 1 -i imgpsh_fullsize.jpg -c:v libx264 -b 1200k -t 4 -vf "scale=1280x720,fps=10,format=yuv420p" -f hls -hls_init_time 4 -hls_time 4 -hls_flags delete_segments -hls_allow_cache 1 profilaktika.m3u8
+
+ffmpeg -re -f lavfi -i "movie=filename=input.mp4:loop=0, setpts=N/(FRAME_RATE*TB)" output.mp4
+
+#create multicast
+ffmpeg -i udp://@239.32.4.6:2000 -c:a copy -c:v copy -f mpegts udp://239.32.12.6:2000?pkt_size=1316
+ffmpeg -i udp://@239.32.4.6:2000 -c:a copy -c:v copy -flush_packets 0 -f mpegts "udp://239.32.77.1:2000?localaddr=172.30.55.14&pkt_size=1316"
+ffmpeg -re -i 1449_monstr_v_parizhe_11_prd_720p_2mb.mp4 -c:v copy -c:a copy -f mpegts udp://239.32.10.56:2000
+# loop video
+ffmpeg -stream_loop -1 -re -i /data/video/NewsOne_mpeg2.ts -c:v copy -c:a copy -f mpegts udp://239.32.10.233:2000?pkt_size=1316
+
+# RTMP
+ffmpeg -re -i 3618260.mp4 -threads 0 -c copy -f flv "rtmp://gk4-chn-wwz1.prod.oll.tv:80/live/nlo2"
+# pool desktop
+ffmpeg -f x11grab -s 1920x1200 -framerate 15 -i :0.0 -c:v libx264 -preset fast -pix_fmt yuv420p -s 1280x800 -threads 0 -f flv "rtmp://gk4-chn-wwz1.prod.oll.tv:80/live/nlo2"
+
+
+# generate matras and squear in conner
+ffmpeg -loglevel warning -y -f lavfi -i testsrc=s=720x576:r=12:d=4 -pix_fmt yuv422p -vf "drawbox=w=50:h=w:t=w:c=${c:?}" test$i.mkv
+
+# Overlay
+./ffmpeg-3.4.1-64bit-static/^Cmpeg -y -re -loglevel warning -i concat2.pls -i nlotv1_1280x720.png -filter_complex '[0:0]scale=1280x720[video1];[video1][1:0]overlay[v]' -map "[v]" -map 0:a? -r 25 -pix_fmt yuv420p -c:v libx264 -b:v 1200k -strict -2 -c:a aac -b:a 128k -ar 48000 -f flv rtmp://172.30.120.246:1935/rtmp/teststream
+# matras with silence
+ffmpeg -f lavfi -i testsrc=s=hd1080:r=25:d=5 -f lavfi -i anullsrc -ar 48000 -ac 2 -t 20 -c:v libx264 -c:a aac -strict -2 matras25.mp4
+
+# ==== FFPROBE ====
+# how do i use ffmpeg to see if a video is interlaced or progressive ?
+ffprobe -select_streams v -i %1 -show_entries "frame=pkt_pts_time,pkt_duration_time,interlaced_frame" -pretty -print_format json -of json > %1.json

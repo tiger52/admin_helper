@@ -1,0 +1,10 @@
+# reload all php-fpm for olltv
+cd /usr/local/etc/ansibleansible 
+docker -i prod.oll.tv -m command   -a 'cd /opt/build/olltv && docker-compose -f /opt/build/olltv/docker-compose.yml exec smartapi kill -USR2 1' --limit=172.30.104.207
+
+# look all nodes/servers
+# ansible.cfg - [defaults] inventory = ./development.txt :
+# [webserver]
+# app01 ansible_user=ansible
+# app02 ansible_user=ansible
+ansible --list-hosts all

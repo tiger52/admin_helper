@@ -1,0 +1,105 @@
+CREATE USER 'admin_bsv'@'localhost' IDENTIFIED BY 'mypass';
+CREATE USER 'admin_bsv'@'127.0.0.1' IDENTIFIED BY 'mypass';
+CREATE USER 'admin_bsv'@'' IDENTIFIED BY 'mypass';
+
+select host,user,password,super_priv from mysql.user;
+GRANT ALL PRIVILEGES ON *.* TO 'admin_bsv'@'' WITH GRANT OPTION;
+
+CREATE USER 'admin_bsv'@'%' IDENTIFIED BY '1q2w3e4r';
+GRANT ALL PRIVILEGES ON *.* TO 'admin_bsv'@'%' WITH GRANT OPTION;
+
+CREATE USER 'root'@'172.%' IDENTIFIED BY 'mysql123';
+GRANT ALL PRIVILEGES ON *.* TO 'root'@'172.%' WITH GRANT OPTION;
+===
+CREATE USER 'admin'@'localhost' IDENTIFIED BY 'password';
+CREATE USER 'admin'@'127.0.0.1' IDENTIFIED BY 'password';
+CREATE USER 'admin'@'%' IDENTIFIED BY 'P@ssword';
+GRANT ALL PRIVILEGES ON *.* TO 'admin'@'localhost' WITH GRANT OPTION;
+GRANT ALL PRIVILEGES ON *.* TO 'admin'@'127.0.0.1' WITH GRANT OPTION;
+GRANT ALL PRIVILEGES ON *.* TO 'admin'@'%' WITH GRANT OPTION;
+===
+CREATE USER 'svlasiuk'@'172.30.%' IDENTIFIED BY '1q2w3e4R$';
+GRANT ALL PRIVILEGES ON symfony.* TO 'svlasiuk'@'172.30.%';
+SET PASSWORD FOR segodnya@'127.0.0.1' = PASSWORD('s3godn!A');
+===
+-- new password
+ALTER USER 'admin'@'localhost' IDENTIFIED BY 'newpassword';
+SET PASSWORD FOR 'bob'@'%.loc.gov' = PASSWORD('newpass');
+
+CREATE USER 'packagist'@'127.0.0.1' IDENTIFIED BY 'cirrEcEyff';
+GRANT ALL PRIVILEGES ON packagist.* TO 'packagist'@'127.0.0.1';
+CREATE USER 'packagist'@'172.30.%' IDENTIFIED BY 'cirrEcEyff';
+GRANT ALL PRIVILEGES ON packagist.* TO 'packagist'@'172.30.%';
+
+
+
+GRANT ALL ON vwall.* TO 'vwalluser'@'localhost';
+
+INSERT INTO vwall.users (name, pass, company) VALUES('ictv', MD5('ictv'), 'ICTV');
+update vwall.users set pass=MD5('ictvtest') where name like 'ictv';
+update vwall.users set pass=MD5('ictvtest') where id_user=4;
+
+DROP USER [IF EXISTS] 'admin'@'127.0.0.1';
+
+
+# операции с данными в мускуле
+set @myvar = 3;
+select @myvar;
+!!!
+#global variables
+select @@var
+
+# восстановить одну таблицу из полного бекапа
+# без констрейта
+echo "set foreign_key_checks=0;" > table_name.sql
+awk '/CREATE TABLE `table_name`/,/UNLOCK TABLES/' dump.sql >> table_name.sql
+# one DB
+sed -n '/^-- Current Database: `dbname`/,/^-- Current Database: `/p' alldatabases.sql > output.sql
+mysql -u root -p --one-database destdbname < alldatabases.sql
+
+mysql -u username -p password database_name < table_name.sql
+
+# найти мак по почте пользователя
+SELECT ID, serial, mac FROM olltv.user_devices where fk_user=(SELECT ID FROM olltv.users where email like 'zhenya.kurilenko@mail.ru');
+
+# change password
+ALTER USER 'admin_bsv'@'localhost' IDENTIFIED BY 'mypass';
+#in MariaDB
+SET PASSWORD FOR 'bob'@'%.loc.gov' = PASSWORD('newpass');
+
+#dump one DB # with create db
+mysqldump --databases olltv --result-file=olltv_stat_schema.sql
+# export dump without data
+mysqldump --databases olltv_stat --no-data --result-file=olltv_stat_schema.sql
+mysql < dump.sql
+
+#ближайшее время в прошлом 
+select * from test_table where id >= (select max(id) from test_table where test_time < '2016-08-04 19:40:00');
+#
+select current_timestamp();
+
+
+# skip the replication error
+stop slave;
+SET GLOBAL sql_slave_skip_counter = N
+start slave;
+
+
+# list of views
+SHOW FULL TABLES IN olltv WHERE TABLE_TYPE LIKE 'VIEW';
+# How do I change the DEFINER of a VIEW in Mysql
+UPDATE `mysql`.`proc` p SET definer = 'root@localhost' WHERE definer='root@foobar' AND db='whateverdbyouwant';
+
+
+## Backup
+--databases - This allows you to specify the databases that you want to backup.  You can also specify certain tables that you want to backup.  If you want to do a full backup of all of the databases, then leave out this option
+--add-drop-database - This will insert a DROP DATABASE statement before each CREATE DATABASE statement.  This is useful if you need to import the data to an existing MySQL instance where you want to overwrite the existing data.  You can also use this to import your backup onto a new MySQL instance, and it will create the databases and tables for you.
+--triggers - this will include the triggers for each dumped table
+--routines - this will include the stored routines (procedures and functions) from the dumped databases
+--events - this will include any events from the dumped databases
+--set-gtid-purged=OFF - since I am using replication on this database (it is the master), I like to include this in case I want to create a new slave using the data that I have dumped.  This option enables control over global transaction identifiers (GTID) information written to the dump file, by indicating whether to add a SET @@global.gtid_purged statement to the output.
+--user - The MySQL user name you want to use
+--password - Again, you can add the actual value of the password (ex. --password=mypassword), but it is less secure than typing in the password manually.  This is useful for when you want to put the backup in a script, in cron or in Windows Task Scheduler.
+--single-transaction - Since I am using InnoDB tables, I will want to use this option.
+
+mysqldump --databases comicbookdb coupons scripts watchdb --single-transaction --set-gtid-purged=OFF --add-drop-database --triggers --routines --events --user=root --password > partial_database_backup.sql

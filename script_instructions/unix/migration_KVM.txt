@@ -1,0 +1,1 @@
+qemu-img convert filename.img -O vmdk filename.vmdk

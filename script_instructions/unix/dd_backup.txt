@@ -1,0 +1,4 @@
+Бакуп
+dd if=/dev/sda conv=sync,noerror bs=64K | gzip -c | ssh -c blowfish user@hostname "dd of=sda.img.gz bs=64k"
+Восстановление
+dd if=sda.img.gz | ssh -c blowfish user@deadhost "gunzip -c | dd of=/dev/sda bs=64k"

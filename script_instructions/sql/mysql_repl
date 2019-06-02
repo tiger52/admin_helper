@@ -1,0 +1,32 @@
+CREATE USER 'repl'@'172.30.51.4' IDENTIFIED BY 'my$ql4Repl';
+GRANT REPLICATION SLAVE ON *.* TO 'repl'@'172.30.51.4';
+
+CHANGE MASTER 
+	TO MASTER_HOST='172.30.51.3',
+	MASTER_USER='repl',
+	MASTER_PASSWORD='my$ql4Repl',
+	MASTER_LOG_FILE='mysql-bin.000001',
+	MASTER_LOG_POS=615;
+
+systemctl stop mysqld.service
+mkdir /data/db/
+chown mysql:mysql /data/db/
+cd /var/lib/mysql
+mv pay/ /data/db/
+ln -s /data/db/pay/ pay
+ls -lh 
+
+
+
+systemctl start mysqld.service
+
+=== trk-db1
+STOP SLAVE;
+...wait migration...
+CHANGE MASTER TO MASTER_HOST='172.30.47.114'
+START SLAVE;
+
+=== trk-db2
+STOP SLAVE;
+START SLAVE;
+

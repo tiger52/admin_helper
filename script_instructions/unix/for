@@ -1,0 +1,19 @@
+# while from frile
+while read line; do
+	echo $i
+done < $1
+# compare two arrays
+folders=`ls /opt/swagger/`
+dockers=`docker ps --format "{{.Names}}" | awk -F"-swagger" '{print $1}' | sort -h`
+
+not_in_a=()
+
+for folder in ${folders[@]}; do
+    for docker in ${dockers[@]}; do
+        [[ $folder == $docker ]] && continue 2
+    done
+    not_in_a+=( $folder )
+done
+
+printf '%s\n' "${not_in_a[@]}"
+

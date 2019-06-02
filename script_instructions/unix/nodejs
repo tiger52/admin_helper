@@ -1,0 +1,19 @@
+# allow tcp ports for node
+setcap cap_net_bind_service=+ep /usr/bin/node
+
+
+
+export PM2_HOME=/data/node/.pm2
+
+export export PM2_HOME=/data/nodejs/notification
+
+
+sudo -u www bash
+
+su - jenkins
+cd /data/nodejs/notification/
+env PM2_HOME=/data/nodejs/notification/.pm2 pm2 start index.js
+env PM2_HOME=/data/nodejs/notification/.pm2 pm2 save
+env PM2_HOME=/data/nodejs/notification/.pm2 pm2 list
+
+pm2 startup systemd -u jenkins --hp /data/nodejs/notification/
