@@ -186,3 +186,6 @@ apg -m 10 -x 10 -t -M NC
 
 # awk after grep
 grep --line-buffered */foldres/file | awk '{print $3}'
+
+# show wi-fi channels
+sudo iwlist wlan0 scan | grep "\(ESSID\|Channel\)"
