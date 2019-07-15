@@ -47,3 +47,7 @@ kubectl drain kube03 --ignore-daemonsets
 
 # list containers in pod
 kubectl -n awx get pod awx-3 -o=jsonpath='{range .spec.containers[*]}{.name}{"\t"}{.image}{"\n"}{end}'
+kubectl -n argo-serf get pod argo-serf-4 -o=jsonpath='{range .status.containerStatuses[*]}{.name}{"\t"}{.ready}{"\t"}{.image}{"\n"}{end}'
+
+# list pod with status not Running
+kubectl get pod --all-namespaces --field-selector=status.phase!=Running
