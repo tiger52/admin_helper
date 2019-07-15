@@ -1,0 +1,4 @@
+gluster pool list
+gluster volume status VOLNAME detail
+gluster volume list
+mount -t glusterfs HOSTNAME-OR-IPADDRESS:/VOLNAME MOUNTDIR
