@@ -19,3 +19,11 @@ curl -s -X GET 'localhost:9200/_snapshot/_all'
 
 # delete index
 curl -XDELETE 'http://localhost:9200/INDEXNAME'
+
+# index [.kibana_task_manager] blocked by: [FORBIDDEN/12/index read-only / allow delete (api)];
+curl -XPUT -H "Content-Type: application/json" http://localhost:9200/_all/_settings -d '{"index.blocks.read_only_allow_delete": null}'
+
+# onigurama syntax for grog
+https://github.com/kkos/oniguruma/blob/master/doc/RE
+# grok-patterns
+https://github.com/elastic/logstash/blob/v1.4.2/patterns/grok-patterns
