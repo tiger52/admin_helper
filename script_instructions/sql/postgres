@@ -62,3 +62,16 @@ FROM pg_catalog.pg_database d
         ELSE NULL
     END DESC -- nulls first
     LIMIT 20;
+
+# check replication
+#On master:
+select * from pg_stat_replication;
+#On replica (streaming replication in my case):
+select * from pg_stat_wal_receive
+
+# create random table
+create table random_table as select generate_series(1,10) as id , md5(random()::text) as description ;
+
+create table random_table (id SERIAL , name TEXT  NOT NULL);
+insert into random_table (name) values (md5(random()::text));
+
