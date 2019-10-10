@@ -51,3 +51,11 @@ kubectl -n argo-serf get pod argo-serf-4 -o=jsonpath='{range .status.containerSt
 
 # list pod with status not Running
 kubectl get pod --all-namespaces --field-selector=status.phase!=Running
+
+# scale
+kubectl scale statefulset awx --replicas=4 -n awx
+
+#fast way to get helm client inline with server side 
+$ curl -LO https://git.io/get_helm.sh
+$ chmod 700 get_helm.sh
+$ ./get_helm.sh -v v2.12.3
