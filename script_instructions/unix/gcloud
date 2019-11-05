@@ -1,0 +1,30 @@
+#!/bin/bash
+screen -r mcs -X stuff '/save-all\n/save-off\n'
+/usr/bin/gsutil cp -R ${BASH_SOURCE%/*}/world gs://${YOUR_BUCKET_NAME}-minecraft-backup/$(date "+%Y%m%d-%H%M%S")-world
+screen -r mcs -X stuff '/save-on\n'
+
+
+inferred instances means that for billing purposes the same type of
+machine used in the same zone will be combined into a single charge so
+that you get the most discount as if it were one machine in use the whole time. 
+
+# To create the tunnel for traffic from Network-1 to Network-2, run the following command:
+gcloud compute \
+vpn-tunnels create tunnel1to2  \
+--peer-address $STATIC_IP_VPN_2 \
+--region us-central1 \
+--ike-version 2 \
+--shared-secret gcprocks \
+--target-vpn-gateway vpn-1 \
+--local-traffic-selector 0.0.0.0/0 \
+--remote-traffic-selector 0.0.0.0/0
+
+# static rote:
+gcloud compute  \
+routes create route1to2  \
+--network vpn-network-1 \
+--next-hop-vpn-tunnel tunnel1to2 \
+--next-hop-vpn-tunnel-region us-central1 \
+--destination-range 10.1.3.0/24
+
+google asn 15169
