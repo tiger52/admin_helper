@@ -19,8 +19,8 @@ def del_bucket(BUCKET):
 
 
 bucket_list_decaf=[
-    "hcom-kasset-milan-cmtc-content-us-west-2",
-    "hcom-kasset-milan-cobranded-content-us-west-2",
+    "bucket1",
+    "bucket2"
 ]
 
 for bucket in bucket_list_decaf:
