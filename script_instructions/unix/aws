@@ -1,0 +1,29 @@
+# query
+aws ec2 describe-instances --query "Reservations[].Instances[].{Instance:InstanceId,PrivateIp:NetworkInterfaces[].PrivateIpAddresses[].PrivateIpAddress}" --instance-id i-09a6b05f9e101f2b3
+
+# S3
+# block bucket
+policy_json="""{
+   \"Statement\": [
+      {
+         \"Effect\": \"Deny\",
+         \"Principal\": \"*\",
+         \"Action\": [
+           \"s3:PutObject\",
+           \"s3:GetObject\",
+           \"s3:DeleteObject\"
+         ],
+         \"Resource\": \"arn:aws:s3:::${BUCKET_NAME}/*\"
+      }
+   ]
+}
+"""
+
+aws s3 rb "s3://${bucket}"
+aws s3api delete-object --bucket $bucket --key "$key" --version-id $versionId
+aws s3api put-bucket-policy --bucket ${BUCKET_NAME} --policy file://${BUCKET_NAME}.json
+aws s3api get-bucket-policy-status --bucket ${BUCKET_NAME}
+aws s3api get-bucket-versioning --bucket $BUCKET_NAME
+aws s3api list-object-versions --bucket ${BUCKET_NAME} | jq '.DeleteMarkers'
+
+aws cloudtrail lookup-events --lookup-attributes AttributeKey=ResourceName,AttributeValue=$BUCKET_NAME --max-results 1 | grep -E "EventName|Username"
