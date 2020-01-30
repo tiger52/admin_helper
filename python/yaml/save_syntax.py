@@ -6,9 +6,9 @@ import sys
 
 schemaspyjson = """
 stage: docs
-image: $CI_REGISTRY/vessel/utility/schemaspy
+image: $CI_REGISTRY/asdfgh/utility/schemaspy
 services:
-- name: gitlab.favorit:4567/vessel/utility/postgres
+- name: gitlab.example:4567/asdfgh/utility/postgres
   alias: pg.tst
 only:
 - devel

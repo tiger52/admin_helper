@@ -16,7 +16,7 @@ with open("gitlab-ci.yaml", 'r') as gitlab_file:
 if 'variables' in gitlab_ci:
     tag = "DEPLOY_SCRIPT"
     if tag in gitlab_ci['variables']:
-        deploy_script = ruamel.yaml.scalarstring.LiteralScalarString(u"sh -c 'hostname &&\nmkdir -p ~/app &&\ncd ~/app &&\ngit clone -b $CI_COMMIT_REF_NAME git@gitlab.favorit:vessel/$CI_PROJECT_NAME.git ;\ncd $CI_PROJECT_NAME &&\ngit checkout $CI_COMMIT_REF_NAME &&\ngit pull &&\nrm -rf _build/ ;\nrebar3 as $CI_COMMIT_REF_NAME release &&\n_build/$CI_COMMIT_REF_NAME/rel/$CI_PROJECT_NAME/bin/$CI_PROJECT_NAME stop ;\n_build/$CI_COMMIT_REF_NAME/rel/$CI_PROJECT_NAME/bin/$CI_PROJECT_NAME start'\n")
+        deploy_script = ruamel.yaml.scalarstring.LiteralScalarString(u"sh -c 'hostname &&\nmkdir -p ~/app &&\ncd ~/app &&\ngit clone -b $CI_COMMIT_REF_NAME git@gitlab.example:asdfgh/$CI_PROJECT_NAME.git ;\ncd $CI_PROJECT_NAME &&\ngit checkout $CI_COMMIT_REF_NAME &&\ngit pull &&\nrm -rf _build/ ;\nrebar3 as $CI_COMMIT_REF_NAME release &&\n_build/$CI_COMMIT_REF_NAME/rel/$CI_PROJECT_NAME/bin/$CI_PROJECT_NAME stop ;\n_build/$CI_COMMIT_REF_NAME/rel/$CI_PROJECT_NAME/bin/$CI_PROJECT_NAME start'\n")
 
         del gitlab_ci['variables'][tag]
         gitlab_ci['variables'][tag] = deploy_script

@@ -34,7 +34,7 @@ kubectl label node de2k8s04.stage.ves node-role.kubernetes.io/ingress=true
 # for ingress, you need look node-selector in controller daemonset
 
 # temp erlang docekr
-kubectl run -n b2b-stage --rm=true --image=gitlab.favorit:4567/vessel/utility/erlang -it erlangnode
+kubectl run -n b2b-stage --rm=true --image=gitlab.example:4567/asdfgh/utility/erlang -it erlangnode
 
 # Some Notes
 - Use a Deployment for stateless services, like frontends, where scaling up and down the number of replicas and rolling out updates are more important than controlling exactly which host the Pod runs on. Use a DaemonSet when it is important that a copy of a Pod always run on all or certain hosts, and when it needs to start before other Pods.

@@ -1,8 +1,8 @@
-image: $CI_REGISTRY/vessel/utility/schemaspy
+image: $CI_REGISTRY/asdfgh/utility/schemaspy
 services:
-- name: gitlab.favorit:4567/vessel/utility/postgres
+- name: gitlab.example:4567/asdfgh/utility/postgres
   alias: pg.tst
-command: ["--insecure-registry=gitlab.favorit:4567", "--dns=10.120.12.120"]
+command: ["--insecure-registry=gitlab.example:4567", "--dns=10.120.12.120"]
 only:
 - devel
 allow_failure: true

@@ -36,7 +36,7 @@ unit tests:
 common tests:
   stage: test
   services:
-    - name: gitlab.favorit:4567/vessel/utility/postgres
+    - name: gitlab.example:4567/asdfgh/utility/postgres
       alias: pg.tst
   script:
     - erl -eval 'erlang:display(erlang:system_info(system_version)), halt().' -noshell
@@ -75,17 +75,17 @@ swagger:
   script:
     - rebar3 as devel compile
     - sh ./swagger.sh $CI_BUILD_REF_NAME &&
-      scp swagger.json skipper@de2np02d.dev.favorit:/opt/swagger/platform/cms_mng/
+      scp swagger.json skipper@de2np02d.dev.example:/opt/swagger/platform/cms_mng/
 
 deploy devel:
   stage: deploy
   only:
     - devel
   script:
-    - ssh skipper@de2np04d.dev.favorit "sh -c 'hostname &&
+    - ssh skipper@de2np04d.dev.example "sh -c 'hostname &&
       mkdir -p ~/app &&
       cd ~/app &&
-      git clone -b $CI_BUILD_REF_NAME git@gitlab.favorit:vessel/cms_mng.git ;
+      git clone -b $CI_BUILD_REF_NAME git@gitlab.example:asdfgh/cms_mng.git ;
       cd cms_mng &&
       git checkout $CI_BUILD_REF_NAME &&
       git pull &&
@@ -95,10 +95,10 @@ deploy devel:
 
 build docker:
   stage: release
-  image: gitlab.favorit:4567/vessel/utility/docker:latest
+  image: gitlab.example:4567/asdfgh/utility/docker:latest
   services:
-    - name: gitlab.favorit:4567/vessel/utility/docker:dind
-      command: ["--insecure-registry=gitlab.favorit:4567","--dns=10.120.12.120"]
+    - name: gitlab.example:4567/asdfgh/utility/docker:dind
+      command: ["--insecure-registry=gitlab.example:4567","--dns=10.120.12.120"]
       alias: docker
   only:
     - tags
@@ -108,7 +108,7 @@ build docker:
     - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY
     - echo $CONTAINER_RELEASE_IMAGE
   script:
-    - docker run --rm -v $CI_PROJECT_DIR:/app -w /app --name ci-temp-docker -t $CI_REGISTRY/vessel/utility/erlang sh -c "rebar3 as devel_docker tar"
+    - docker run --rm -v $CI_PROJECT_DIR:/app -w /app --name ci-temp-docker -t $CI_REGISTRY/asdfgh/utility/erlang sh -c "rebar3 as devel_docker tar"
     - docker pull $CONTAINER_RELEASE_IMAGE:test || true
     - docker build --cache-from $CONTAINER_RELEASE_IMAGE:test -t $CONTAINER_RELEASE_IMAGE:test -t $CONTAINER_RELEASE_IMAGE:$CI_COMMIT_SHA .
     - docker push $CONTAINER_RELEASE_IMAGE:test
@@ -116,12 +116,12 @@ build docker:
 
 build docker:
   stage: release
-  image: $CI_REGISTRY/vessel/utility/docker:latest
+  image: $CI_REGISTRY/asdfgh/utility/docker:latest
   variables:
     CONTAINER_RELEASE_IMAGE: $CI_REGISTRY/$CI_PROJECT_PATH
   services:
-    - name: $CI_REGISTRY/vessel/utility/docker:dind
-      command: ["--insecure-registry=gitlab.favorit:4567","--dns=10.120.12.120"]
+    - name: $CI_REGISTRY/asdfgh/utility/docker:dind
+      command: ["--insecure-registry=gitlab.example:4567","--dns=10.120.12.120"]
       alias: docker
   only:
     - devel
@@ -129,7 +129,7 @@ build docker:
   before_script:
     - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY
   script:
-    - docker run --rm -v $CI_PROJECT_DIR:/app -w /app --name ci-temp-docker -t gitlab.favorit:4567/vessel/utility/erlang:21-ci sh -c "rebar3 as devel_docker tar"
+    - docker run --rm -v $CI_PROJECT_DIR:/app -w /app --name ci-temp-docker -t gitlab.example:4567/asdfgh/utility/erlang:21-ci sh -c "rebar3 as devel_docker tar"
     - docker pull $CONTAINER_RELEASE_IMAGE:test || true
     - docker build --cache-from $CONTAINER_RELEASE_IMAGE:test -t $CONTAINER_RELEASE_IMAGE:test -t $CONTAINER_RELEASE_IMAGE:$CI_COMMIT_SHA .
     - docker push $CONTAINER_RELEASE_IMAGE:test
@@ -137,7 +137,7 @@ build docker:
 
 .deploy to k8s: &deploy_to_k8s
   stage: deploy
-  image: $CI_REGISTRY/vessel/utility/kubectl:latest
+  image: $CI_REGISTRY/asdfgh/utility/kubectl:latest
   when: manual
   only:
     - devel

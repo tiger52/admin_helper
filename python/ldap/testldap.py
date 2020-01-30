@@ -9,7 +9,7 @@ try:
 	# If you leave them as empty strings or pass an invalid value
 	# you will still bind to the server but with limited privileges.
 	
-	username = "cn=ldapadm, dc=dev, dc=favorit"
+	username = "cn=ldapadm, dc=dev, dc=company"
 	password  = "1q2w3e4r"
 	
 	# Any errors will throw an ldap.LDAPError exception 
@@ -20,7 +20,7 @@ except ldap.LDAPError, e:
 	print e
 	# handle error however you like
 
-ldap_base = "ou=People,dc=dev,dc=favorit"
+ldap_base = "ou=People,dc=dev,dc=company"
 #query = "(ou=People)"
 #query = '(objectClass=account)'
 query = 'cn=*'

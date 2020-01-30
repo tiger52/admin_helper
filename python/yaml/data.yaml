@@ -9,7 +9,7 @@ variables:
     sh -c 'hostname &&
     mkdir -p ~/app &&
     cd ~/app &&
-    git clone -b $CI_COMMIT_REF_NAME git@gitlab.favorit:vessel/$CI_PROJECT_NAME.git ;
+    git clone -b $CI_COMMIT_REF_NAME git@gitlab.example:asdfgh/$CI_PROJECT_NAME.git ;
     cd $CI_PROJECT_NAME &&
     git checkout $CI_COMMIT_REF_NAME &&
     git pull &&
@@ -47,9 +47,9 @@ build:
 common tests:
   stage: test
   services:
-  - name: gitlab.favorit:4567/vessel/utility/postgres
+  - name: gitlab.example:4567/asdfgh/utility/postgres
     alias: pg.tst
-  - name: gitlab.favorit:4567/vessel/utility/redis
+  - name: gitlab.example:4567/asdfgh/utility/redis
     alias: redis.tst
   script:
   - erl -eval 'erlang:display(erlang:system_info(system_version)), halt().' -noshell
@@ -70,7 +70,7 @@ dialyze:
 code style:
   allow_failure: true
   script:
-  - git clone git@gitlab.favorit:vessel/elvis_config.git
+  - git clone git@gitlab.example:asdfgh/elvis_config.git
   - elvis rock --config elvis_config/elvis.config
 
 cover report:
@@ -107,19 +107,19 @@ deploy devel:
 
 build docker:
   stage: release
-  image: $CI_REGISTRY/vessel/utility/docker:latest
+  image: $CI_REGISTRY/asdfgh/utility/docker:latest
   variables:
     CONTAINER_RELEASE_IMAGE: $CI_REGISTRY/$CI_PROJECT_PATH
   services:
-  - name: $CI_REGISTRY/vessel/utility/docker:dind
-    command: ['"--insecure-registry=gitlab.favorit:4567"', '"--dns=10.120.12.120"']
+  - name: $CI_REGISTRY/asdfgh/utility/docker:dind
+    command: ['"--insecure-registry=gitlab.example:4567"', '"--dns=10.120.12.120"']
     alias: docker
   only:
   - master
   before_script:
   - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY
   script:
-  - docker run --rm -v $CI_PROJECT_DIR:/app -w /app --name ci-temp-docker -t gitlab.favorit:4567/vessel/utility/erlang:21-ci
+  - docker run --rm -v $CI_PROJECT_DIR:/app -w /app --name ci-temp-docker -t gitlab.example:4567/asdfgh/utility/erlang:21-ci
     sh -c "rebar3 as devel_docker tar"
   - docker pull $CONTAINER_RELEASE_IMAGE:devel || true
   - docker build --cache-from $CONTAINER_RELEASE_IMAGE:devel -t $CONTAINER_RELEASE_IMAGE:devel
@@ -128,7 +128,7 @@ build docker:
   - docker push $CONTAINER_RELEASE_IMAGE:devel_$CI_COMMIT_SHA
 
 .deploy to k8s: &deploy_to_k8s
-  image: $CI_REGISTRY/vessel/utility/kubectl:latest
+  image: $CI_REGISTRY/asdfgh/utility/kubectl:latest
   when: manual
   only:
   - master
