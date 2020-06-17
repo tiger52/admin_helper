@@ -1,0 +1,5 @@
+# in this file you can find example of some useful functions
+
+function log {
+  echo "$(date -u  '+%Y/%m/%d %R')  $@"
+}
