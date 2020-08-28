@@ -1,0 +1,8 @@
+# commands like grep
+# native PS
+ipconfig.exe | Select-String "IPv4"
+# like in cmd
+ipconfig.exe | findstr "IPv4"
+
+# If a command in PowerShell returns some objects, before parsing, they should be converted to strings using the Out-String -Stream command:
+Get-Alias | Out-String -Stream | Select-String "curl"
