@@ -14,3 +14,9 @@ git checkout -b newbranch
 
 # get old commit
 git checkout <hash>
+
+# show and set some config
+git config --global user.name
+git config --global user.name "my name"
+git config --global user.email
+git config --global user.email "mymail@mydomain"

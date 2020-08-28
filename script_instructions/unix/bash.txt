@@ -72,6 +72,8 @@ ssh -C2qTnN -D 8080 root@g50-trk-gw1
 ssh-keygen -f "/home/tiger_s/.ssh/known_hosts" -R g50-trk-gw1.prod.oll.tv
 # ssh via proxy (using netcat)
 ssh root@176.111.58.101 -p 22 -o "ProxyCommand=nc -X 5 -x 192.95.68.74:35923 %h %p"
+# pseudo tty & no key needed
+ssh -qt -o "StrictHostKeyChecking no" ${host} "sudo -S poweroff"
 
 # sudo
 sudo -u jenkins pm2 list
