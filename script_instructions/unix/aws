@@ -27,3 +27,11 @@ aws s3api get-bucket-versioning --bucket $BUCKET_NAME
 aws s3api list-object-versions --bucket ${BUCKET_NAME} | jq '.DeleteMarkers'
 
 aws cloudtrail lookup-events --lookup-attributes AttributeKey=ResourceName,AttributeValue=$BUCKET_NAME --max-results 1 | grep -E "EventName|Username"
+
+AWS_REGION=us-west-2 helm repo update
+# add config to kubectl for EKS
+aws eks --region us-west-2 update-kubeconfig --name name_of_eks
+# add config for docker registry
+aws ecr get-login --registry-ids $aws_account --no-include-email
+# set default config
+export AWS_PROFILE=name_of_profile
