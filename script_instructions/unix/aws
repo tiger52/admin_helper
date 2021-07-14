@@ -35,3 +35,5 @@ aws eks --region us-west-2 update-kubeconfig --name name_of_eks
 aws ecr get-login --registry-ids $aws_account --no-include-email
 # set default config
 export AWS_PROFILE=name_of_profile
+# show just secure parameters
+aws ssm get-parameters-by-path --path /some/path --query "Parameters[?Type=='SecureString'].[Type,Name]" --output text
