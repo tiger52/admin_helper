@@ -103,3 +103,27 @@ UPDATE `mysql`.`proc` p SET definer = 'root@localhost' WHERE definer='root@fooba
 --single-transaction - Since I am using InnoDB tables, I will want to use this option.
 
 mysqldump --databases comicbookdb coupons scripts watchdb --single-transaction --set-gtid-purged=OFF --add-drop-database --triggers --routines --events --user=root --password > partial_database_backup.sql
+
+
+# change table column on production db
+read -s PASS
+pt-online-schema-change \
+  --execute \
+  --alter "MODIFY table_column varchar(123), ENGINE=InnoDB" D=db_name,t=table_name,h=host_name \
+  --critical-load "Threads_running=10000" \
+  --max-load "Threads_running:200" \
+  --chunk-size=100 \
+  --pause-file /tmp/pt-pause \
+  --no-drop-old-table \
+  --no-swap-tables \
+  --no-drop-new-table \
+  --no-drop-triggers \
+  --skip-check-slave-lag h=127.0.0.1 \
+  --slave-user=repl \
+  --slave-password=$PASS
+
+# db size
+SELECT table_schema AS "Database", SUM(data_length + index_length) / 1024 / 1024 / 1024 AS "Size (GB)" FROM information_schema.TABLES GROUP BY table_schema;
+
+# delete bin logs
+PURGE BINARY LOGS TO 'db-bin.000123';
