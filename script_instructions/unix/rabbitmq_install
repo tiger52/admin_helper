@@ -21,3 +21,8 @@ rabbitmqctl add_user admin P@ssword
 rabbitmqctl set_permissions -p /admin ".*" ".*" ".*"
 rabbitmqctl set_user admin administrator
 rabbitmqctl set_user_tags admin administrator
+
+# import definitiions from another server
+curl -u user:$PASS -X GET http://another_sever:15672/api/definitions > another_sever.json
+cp another_sever.json /var/another_sever
+rabbitmqctl import_definitions another_sever.json
