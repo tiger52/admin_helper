@@ -127,3 +127,25 @@ SELECT table_schema AS "Database", SUM(data_length + index_length) / 1024 / 1024
 
 # delete bin logs
 PURGE BINARY LOGS TO 'db-bin.000123';
+
+# Last_IO_Errno: 1236
+mysql> show slave status\G
+Relay_Master_Log_File: mysql-bin.004783
+
+on_master
+mysqlbinlog mysql-bin.004783 | tail -9
+#171128  8:25:10 server id 1  end_log_pos 643202808 CRC32 0xc7842fa3     Xid = 167808175
+
+on_slave
+mysql> stop slave;
+mysql> change master to master_log_file='mysql-bin.004783', master_log_pos=643202808;
+mysql> start slave;
+
+# Last_IO_Errno: 1062
+mysql> stop slave;
+mysql> set global gtid_mode=ON_PERMISSIVE;
+mysql> SET GLOBAL SQL_SLAVE_SKIP_COUNTER = number_of_bad_value;
+mysql> START SLAVE;
+mysql> SHOW SLAVE STATUS\G;
+### Once caught up set it back
+mysql> set global gtid_mode=ON;
