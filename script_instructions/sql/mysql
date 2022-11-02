@@ -124,6 +124,26 @@ pt-online-schema-change \
 
 # db size
 SELECT table_schema AS "Database", SUM(data_length + index_length) / 1024 / 1024 / 1024 AS "Size (GB)" FROM information_schema.TABLES GROUP BY table_schema;
+# table size
+SELECT
+  TABLE_NAME AS `Table`,
+  ROUND((DATA_LENGTH + INDEX_LENGTH) / 1024 / 1024) AS `Size (MB)`
+FROM
+  information_schema.TABLES
+WHERE
+  TABLE_SCHEMA = "bookstore"
+ORDER BY
+  (DATA_LENGTH + INDEX_LENGTH)
+DESC;
+#table size variant2
+SELECT
+  TABLE_NAME AS `Table`,
+  ROUND(DATA_LENGTH / POWER(1024,3)) AS `Size (GB)`,
+  ROUND( INDEX_LENGTH / POWER(1024,3)) AS `IndexSize (GB)`
+FROM information_schema.TABLES
+WHERE TABLE_SCHEMA = "notify"
+ORDER BY DATA_LENGTH DESC;
+
 
 # delete bin logs
 PURGE BINARY LOGS TO 'db-bin.000123';
@@ -142,6 +162,7 @@ mysql> change master to master_log_file='mysql-bin.004783', master_log_pos=64320
 mysql> start slave;
 
 # Last_IO_Errno: 1062
+# Last_IO_Errno: 1032
 mysql> stop slave;
 mysql> set global gtid_mode=ON_PERMISSIVE;
 mysql> SET GLOBAL SQL_SLAVE_SKIP_COUNTER = number_of_bad_value;
@@ -149,3 +170,5 @@ mysql> START SLAVE;
 mysql> SHOW SLAVE STATUS\G;
 ### Once caught up set it back
 mysql> set global gtid_mode=ON;
+
+
