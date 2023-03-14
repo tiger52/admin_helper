@@ -1,0 +1,97 @@
+docker run --rm --net=host -v /etc/ceph:/etc/ceph:z -v /var/lib/ceph/:/var/lib/ceph/:z -v /var/log/ceph/:/var/log/ceph/:z --entrypoint=ceph quay.io/ceph/daemon:master-f9b91cd-pacific-centos-8-x86_64 -n mon. -k /var/lib/ceph/mon/ceph-ovh-ceph-ovh-03/keyring --cluster ceph-ovh auth get mon. -f json
+
+docker exec ceph-mon-ceph-ovh-01 ceph --cluster ceph-ovh osd stat -f json
+osd lspools
+
+docker exec ceph-mon-ceph-ovh-01 ceph --cluster ceph-ovh daemon mon.ceph-ovh-01 mon_status --format json
+
+docker exec ceph-mon-ceph-ovh-01 ceph --cluster ceph-ovh osd tree shows
+
+# list ceph lvm
+docker run --rm --privileged --net=host --ipc=host -v /run/lock/lvm:/run/lock/lvm:z -v /var/run/udev/:/var/run/udev/:z -v /dev:/dev -v /etc/ceph:/etc/ceph:z -v /run/lvm/:/run/lvm/ -v /var/lib/ceph/:/var/lib/ceph/:z -v /var/log/ceph/:/var/log/ceph/:z \
+--entrypoint=ceph-volume \
+quay.io/ceph/daemon:master-29640fb4-pacific-centos-8-x86_64 \
+--cluster ceph-ovh lvm list --format=json
+
+# activate lvm
+docker run --rm --privileged --net=host --ipc=host -v /run/lock/lvm:/run/lock/lvm:z -v /var/run/udev/:/var/run/udev/:z -v /dev:/dev -v /etc/ceph:/etc/ceph:z -v /run/lvm/:/run/lvm/ -v /var/lib/ceph/:/var/lib/ceph/:z -v /var/log/ceph/:/var/log/ceph/:z \
+--entrypoint=ceph-volume \
+quay.io/ceph/daemon:master-29640fb4-pacific-centos-8-x86_64 \
+--cluster ceph-ovh lvm activate --all
+
+docker run --rm --privileged --net=host --ipc=host -v /run/lock/lvm:/run/lock/lvm:z -v /var/run/udev/:/var/run/udev/:z -v /dev:/dev -v /etc/ceph:/etc/ceph:z -v /run/lvm/:/run/lvm/ -v /var/lib/ceph/:/var/lib/ceph/:z -v /var/log/ceph/:/var/log/ceph/:z \
+--entrypoint=ceph-volume \
+quay.io/ceph/daemon:master-29640fb4-pacific-centos-8-x86_64 \
+--cluster ceph-ovh \
+lvm activate --no-systemd --bluestore 3 68a3bba4-0b38-4ac2-be4b-9e30dd5e274f
+
+docker run --rm --privileged --net=host --ipc=host -v /run/lock/lvm:/run/lock/lvm:z -v /var/run/udev/:/var/run/udev/:z -v /dev:/dev -v /etc/ceph:/etc/ceph:z -v /run/lvm/:/run/lvm/ -v /var/lib/ceph/:/var/lib/ceph/:z -v /var/log/ceph/:/var/log/ceph/:z --entrypoint=ceph-volume quay.io/ceph/daemon:master-29640fb4-pacific-centos-8-x86_64 --cluster ceph-ovh osd tree shows
+
+# just ls
+docker run --rm --privileged --net=host --ipc=host -v /run/lock/lvm:/run/lock/lvm:z -v /var/run/udev/:/var/run/udev/:z -v /dev:/dev -v /etc/ceph:/etc/ceph:z -v /run/lvm/:/run/lvm/ -v /var/lib/ceph/:/var/lib/ceph/:z -v /var/log/ceph/:/var/log/ceph/:z --entrypoint=bash quay.io/ceph/daemon:master-29640fb4-pacific-centos-8-x86_64 ls -l /dev/vg
+
+# get keyring
+docker run --rm --net=host -v /etc/ceph:/etc/ceph:z -v /var/lib/ceph/:/var/lib/ceph/:z -v /var/log/ceph/:/var/log/ceph/:z --entrypoint=ceph quay.io/ceph/daemon:master-29640fb4-pacific-centos-8-x86_64 -n client.admin -k /etc/ceph/ceph-ovh.client.admin.keyring --cluster ceph-ovh auth get client.bootstrap-osd -f","plain
+
+# prepare lvm
+docker run --rm --privileged --net=host --ipc=host -v /run/lock/lvm:/run/lock/lvm:z -v /var/run/udev/:/var/run/udev/:z -v /dev:/dev -v /etc/ceph:/etc/ceph:z -v /run/lvm/:/run/lvm/ -v /var/lib/ceph/:/var/lib/ceph/:z -v /var/log/ceph/:/var/log/ceph/:z \
+--entrypoint=ceph-volume \
+quay.io/ceph/daemon:master-29640fb4-pacific-centos-8-x86_64 \
+--cluster ceph-ovh \
+lvm prepare \
+--bluestore \
+--data vg/ceph
+
+
+#remove osd
+docker exec ceph-mon-ceph-ovh-01 ceph --cluster ceph-ovh osd down osd.3
+docker exec ceph-mon-ceph-ovh-01 ceph --cluster ceph-ovh osd out osd.3
+docker exec ceph-mon-ceph-ovh-01 ceph --cluster ceph-ovh osd stop osd.3
+docker exec ceph-mon-ceph-ovh-01 ceph --cluster ceph-ovh osd crush remove osd.3
+docker exec ceph-mon-ceph-ovh-01 ceph --cluster ceph-ovh osd del osd.3
+docker exec ceph-mon-ceph-ovh-01 ceph --cluster ceph-ovh osd rm osd.3
+
+# For Ceph versions starting with Luminous (and higher), the above steps can be reduced to:
+ceph osd out osd.${ID}
+ceph osd purge osd.${ID}
+
+
+docker exec ceph-mon-ceph-ovh-01 ceph --cluster ceph-ovh auth get-key client.userid
+
+
+
+pveceph purge    # on all nodes
+rm -rf /var/lib/ceph    # on all nodes
+rm /etc/pve/ceph.conf
+reboot of one node
+
+
+for i in $(apt search ceph | grep installed | awk -F/ '{print $1}'); do apt reinstall $i; done
+dpkg-reconfigure ceph-base
+dpkg-reconfigure ceph-mds
+dpkg-reconfigure ceph-common
+dpkg-reconfigure ceph-fuse
+
+
+# reinstall ceph from proxmox node
+
+rm -rf /etc/systemd/system/ceph*
+killall -9 ceph-mon ceph-mgr ceph-mds
+rm -rf /etc/ceph /etc/pve/ceph.conf /etc/pve/priv/ceph* /var/lib/ceph
+pveceph purge
+apt purge ceph-mon ceph-osd ceph-mgr ceph-mds
+rm /etc/init.d/ceph
+for i in $(apt search ceph | grep installed | awk -F/ '{print $1}'); do apt reinstall $i; done
+dpkg-reconfigure ceph-base
+dpkg-reconfigure ceph-mds
+dpkg-reconfigure ceph-common
+dpkg-reconfigure ceph-fuse
+for i in $(apt search ceph | grep installed | awk -F/ '{print $1}'); do apt reinstall $i; done
+systemctl restart pvestatd
+mkdir /etc/ceph
+mkdir /var/lib/ceph/bootstrap-osd
+
+# mount example
+mount -t ceph 192.168.2.31:/  /mnt/mycephfs -o name=admin,secret=`ceph-authtool -p {path-to-keyring}`
+
+

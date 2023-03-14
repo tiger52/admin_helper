@@ -1,0 +1,11 @@
+# If Debian 11 is ran on a LXC container (Proxmox), SSH login and sudo actions can be slow
+# Check if in /var/log/auth.log the following messages 
+# Failed to activate service 'org.freedesktop.login1': timed out (service_start_timeout=25000ms)
+
+-> Run  systemctl mask systemd-logind
+-> Run pam-auth-update (and deselect Register user sessions in the systemd control group hierarchy)
+# https://gist.github.com/charlyie/76ff7d288165c7d42e5ef7d304245916
+
+# fix locale
+echo "en_US.UTF-8 UTF-8" > /etc/locale.gen
+locale-gen
