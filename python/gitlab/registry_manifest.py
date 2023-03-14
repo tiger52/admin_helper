@@ -7,11 +7,11 @@ import json
 import base64
 
 #gitlab_token="1q2w3e4r"
-gitlab_token="1q2w3e4r"
+gitlab_token="-HygWCD4vsr9YBCs941N"
 context = ssl._create_unverified_context()
 
 def get_registry_token(project, action):
-    url = "https://mygitlab.com/jwt/auth?client_id=docker&offline_token=true&service=container_registry&scope=repository:nameOfGroup/{}:{}".format(project, action)
+    url = "https://{}/jwt/auth?client_id=docker&offline_token=true&service=container_registry&scope=repository:{}/{}:{}".format(gitlabhost, nameOfGroup, project, action)
     #url = "https://mygitlab.com/jwt/auth?client_id=docker&offline_token=true&service=mygitlab.com&scope=repository:nameOfGroup/{}:{}".format(project, action)
     username = "s.babik"
     password = "n6SuswB9iybcKv1SGvPC"
@@ -27,7 +27,7 @@ def get_registry_token(project, action):
     return token
 
 def get_manifest(project, docker_tag):
-    url = "https://mygitlab.com:4567/v2/nameOfGroup/{}/manifests/{}".format(project, docker_tag)
+    url = "https://{}:4567/v2/{}/{}/manifests/{}".format(gitlabhost, nameOfGroup, project, docker_tag)
     registry_token = get_registry_token(project, 'pull')
     headers = {"Authorization": "Bearer {}".format(registry_token)}
     response = requests.get(url, headers=headers)
@@ -45,7 +45,7 @@ def get_manifest(project, docker_tag):
 #    return json.loads(response.read())
 
 def change_tag(project, old_tag, new_tag):
-    url = "https://mygitlab.com:4567/v2/nameOfGroup/{}/manifests/{}".format(project, old_tag)
+    url = "https://{}:4567/v2/{}/{}/manifests/{}".format(gitlabhost, nameOfGroup, project, old_tag)
     #request.add_header("Accept", "application/vnd.docker.distribution.manifest.v2+json")
     registry_token = get_registry_token(project, 'push')
     headers = {"Authorization": "Bearer {}".format(registry_token)}
@@ -60,24 +60,41 @@ def change_tag(project, old_tag, new_tag):
 #    #print response_headers.dict['docker-content-digest']
 #    print json.loads(response.read())
 
+def get_deploy_tokens():
+    url = "https://{}/api/v4/deploy_tokens".format(gitlabhost)
+    print(url)
+    #registry_token = get_registry_token(project, 'pull')
+    #headers = {"Authorization": "Bearer {}".format(registry_token)}
+    headers = {"PRIVATE-TOKEN": "{}".format(gitlab_token)}
+    response = requests.get(url, headers=headers)
+    return response.json()
 
 # === Main ===
 parser = argparse.ArgumentParser(description="")
+parser.add_argument('--host', required=True, type=str, help='project in registry')
+parser.add_argument('-g', '--group', type=str, help='project in registry')
 parser.add_argument('-p', '--project', type=str, help='project in registry')
 parser.add_argument('-t', '--tag', type=str, help='current docker tag')
 parser.add_argument('-n', '--newtag', type=str, help='new docker tag')
 args = parser.parse_args()
+gitlabhost = args.host
+if (args.group):
+    nameOfGroup = args.group
 
-if args.project is None:
-	parser.print_help()
-	exit()
+if args.project:
+    if args.group is None:
+        print("you should set Group name")
+        parser.print_help()
+        exit()
 #if args.tag is None:
-#	parser.print_help()
-#	exit()
+#    parser.print_help()
+#    exit()
 #if args.newtag is None:
-#	parser.print_help()
-#	exit()
-print(get_registry_token(args.project, 'push'))
+#    parser.print_help()
+#    exit()
+#print(get_registry_token(args.project, 'push'))
 #print(get_manifest(args.project, args.tag))
 #change_tag(args.project, args.tag, args.newtag)
+
+print(json.dumps(get_deploy_tokens(), sort_keys=True, indent=4))
 
