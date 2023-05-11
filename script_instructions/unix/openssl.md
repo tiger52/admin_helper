@@ -2,7 +2,7 @@
 ## create you own root certificate CA
 ```
 openssl genrsa -out myCA.key 2048
-openssl req -x509 -new -nodes -key myCA.key -sha256 -days 3650 -out myCA.pem
+openssl req -x509 -new -nodes -key myCA.key -subj "/O=my.local" -days 3650 -out myCA.pem
 ```
 ## now create certificate for your app signed by our root CA
 ```
