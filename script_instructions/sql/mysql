@@ -171,4 +171,7 @@ mysql> SHOW SLAVE STATUS\G;
 ### Once caught up set it back
 mysql> set global gtid_mode=ON;
 
-
+# enable slowlog on the fly
+SET GLOBAL slow_query_log = 'ON';
+SET GLOBAL long_query_time = 2;
+SET GLOBAL slow_query_log_file = '/var/log/mysql/mysql-slow.log';
