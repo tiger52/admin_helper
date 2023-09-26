@@ -17,3 +17,8 @@ done
 
 printf '%s\n' "${not_in_a[@]}"
 
+while read a b c
+do
+    echo "${a} ${b}  ${c}"
+done < <(mysql --batch --disable-column-names -e "SELECT A, B, C FROM table_a" )
+
