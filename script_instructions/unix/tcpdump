@@ -1,2 +1,4 @@
 tcpdump -vv -n -i vlan221 igmp
+# greping in https traffic dst domain
+tcpdump -n -i eth0 -c 100 -s0 -A 'port 443 and host 1.2.3.4 and tcp[tcpflags] & (tcp-push) != 0' | grep -o -E --color "\w+\.\w+"
 

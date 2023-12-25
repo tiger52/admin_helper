@@ -26,3 +26,6 @@ rabbitmqctl set_user_tags admin administrator
 curl -u user:$PASS -X GET http://another_sever:15672/api/definitions > another_sever.json
 cp another_sever.json /var/another_sever
 rabbitmqctl import_definitions another_sever.json
+
+# show consumers by queues
+rabbitmqadmin -N node_from_config list consumers queue.name channel_details.user activity_status channel_details.connection_name
