@@ -192,3 +192,6 @@ grep --line-buffered */foldres/file | awk '{print $3}'
 
 # show wi-fi channels
 sudo iwlist wlan0 scan | grep "\(ESSID\|Channel\)"
+
+# traffic shaper qos
+tc qdisc add dev eth0 root tbf rate 500mbit burst 16kbit latency 50ms
