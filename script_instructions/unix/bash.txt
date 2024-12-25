@@ -107,6 +107,11 @@ ip link add link bond0 name vlan2102 type vlan id 2102
 ip addr [ add | del ] address dev ifname
 ip address add 91.238.195.243/27 dev vlan2102
 ip link delete vlan2102
+
+## add link in vlan
+ip link add link eno2 name eno2.13 type vlan id 13
+
+
 # bonding
 cat /sys/class/net/bonding_masters 
 cat /sys/class/net/bond0/bonding/slaves 
@@ -195,3 +200,6 @@ sudo iwlist wlan0 scan | grep "\(ESSID\|Channel\)"
 
 # traffic shaper qos
 tc qdisc add dev eth0 root tbf rate 500mbit burst 16kbit latency 50ms
+
+# check tcp without telnet ot netcat
+(echo > /dev/tcp/google.com/443) >/dev/null 2>&1 && echo «up» || echo «down»
