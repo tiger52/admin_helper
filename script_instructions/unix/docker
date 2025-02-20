@@ -1,0 +1,2 @@
+# to get ENV variable when doing Docker Inspect
+docker inspect --format '{{ index (index .Config.Env) 1 }}' 797

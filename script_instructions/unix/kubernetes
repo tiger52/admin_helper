@@ -22,6 +22,7 @@ kubectl get pod --all-namespaces -o wide --field-selector=spec.nodeName=kube07
 kubectl get pods -n aggelos -o=jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.status.podIP}{"\n"}{end}'
 
 kubectl run -i --tty busybox --image=busybox -- sh      # Run pod as interactive shell
+kubectl run -it --rm --restart=Never busybox --image=alpine sh
 
 # add label
 kubectl label node kube01 slava-label=true

@@ -30,6 +30,7 @@ html = """\
     </p>
   </body>
 </html>
+<CR><LF>.<CR><LF>
 """
 
 # Record the MIME types of both parts - text/plain and text/html.
