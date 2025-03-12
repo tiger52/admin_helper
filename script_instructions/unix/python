@@ -15,3 +15,6 @@ cat swagger.json | python -m json.tool > swagger_.json
 
 # yaml to json
 alias yaml2json='python -c "import sys,yaml,json;sys.tracebacklimit=0;print(json.dumps(yaml.load(open(sys.argv[1]).read()), indent=2))"'
+
+# genarate random password
+python3 -c "import secrets; print(secrets.token_urlsafe(14))"
