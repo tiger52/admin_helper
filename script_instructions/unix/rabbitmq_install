@@ -29,3 +29,28 @@ rabbitmqctl import_definitions another_sever.json
 
 # show consumers by queues
 rabbitmqadmin -N node_from_config list consumers queue.name channel_details.user activity_status channel_details.connection_name
+
+### migrate definitions from old rabbit to new one
+
+for us this should migrate users
+
+and queues which we should delete before put new server to prod
+
+```bash
+curl -u core:$PASS -X GET http://OLD_RABBIT:15672/api/definitions | jq . > /var/lib/rabbitmq/definitions.json
+sed -i "s/OLD_RABBIT/NEW_RABBIT/g" /var/lib/rabbitmq/definitions.json
+rabbitmqctl import_definitions definitions.json
+rm /var/lib/rabbitmq/definitions.json
+#delete queues
+for i in `rabbitmqctl list_queues | awk '{print $1}' | grep -vE "Timeout|Listing|name"`; do rabbitmqctl delete_queue $i ; done
+```
+
+### Check exist alarms for rabbitmq
+
+```bash
+$ rabbitmqctl status
+...
+Alarms
+(none)
+```
+
