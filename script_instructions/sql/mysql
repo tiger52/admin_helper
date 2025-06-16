@@ -123,7 +123,7 @@ pt-online-schema-change \
   --slave-password=$PASS
 
 # db size
-SELECT table_schema AS "Database", SUM(data_length + index_length) / 1024 / 1024 / 1024 AS "Size (GB)" FROM information_schema.TABLES GROUP BY table_schema;
+SELECT table_schema AS "Database", SUM(data_length + index_length)/ POWER(1024,3) AS "Size (GB)", SUM(DATA_FREE)/POWER(1024,3) AS "Data Free (GB)" FROM information_schema.TABLES GROUP BY table_schema;
 # table size
 SELECT
   TABLE_NAME AS `Table`,
@@ -140,6 +140,7 @@ SELECT
   TABLE_NAME AS `Table`,
   ROUND(DATA_LENGTH / POWER(1024,3)) AS `Size (GB)`,
   ROUND( INDEX_LENGTH / POWER(1024,3)) AS `IndexSize (GB)`
+  ROUND( DATA_FREE / POWER(1024,3)) AS `DataFree (GB)`
 FROM information_schema.TABLES
 WHERE TABLE_SCHEMA = "notify"
 ORDER BY DATA_LENGTH DESC;
