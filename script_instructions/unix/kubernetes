@@ -63,3 +63,6 @@ $ ./get_helm.sh -v v2.12.3
 
 # cool show of Events
 kubectl get events --sort-by=.lastTimestamp -o=jsonpath='{range .items[*]}{.lastTimestamp}{"\t"}{.metadata.name}{"\t"}{.message}{"\n"}{end}' | less
+
+# envs for each container in the pod
+kubectl --namespace trololo get pod trolapp-123445678-12345 -o=jsonpath='{range .spec.containers[*]}{.name}{"\n"}{range .env[*]}{"\t"}{.name}{"\t"}{.value}{"\n"}{end}{"\n"}{end}'
